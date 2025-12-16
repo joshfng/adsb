@@ -3,7 +3,7 @@
 # Compatibility layer providing Curses-like API using ncursesw
 # This allows our TUI code to use familiar Curses syntax while using the working ncursesw gem
 
-require 'ncursesw'
+require "ncursesw"
 
 module Curses
   # Constants

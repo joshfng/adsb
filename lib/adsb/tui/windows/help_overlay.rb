@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
+require_relative "base_window"
 
 module ADSB
   module TUI
@@ -8,29 +8,29 @@ module ADSB
       # Modal help overlay showing all keyboard shortcuts
       class HelpOverlay < BaseWindow
         HELP_TEXT = [
-          ['Navigation', ''],
-          ['j / ↓', 'Move down'],
-          ['k / ↑', 'Move up'],
-          ['PgDn', 'Page down'],
-          ['PgUp', 'Page up'],
-          ['Home', 'Go to top'],
-          ['End', 'Go to bottom'],
-          ['Enter', 'Select aircraft'],
-          ['', ''],
-          ['Panels', ''],
-          ['Tab', 'Toggle detail/stats panel'],
-          ['l', 'Toggle log panel'],
-          ['', ''],
-          ['Filtering', ''],
-          ['/', 'Search by callsign/ICAO'],
-          ['f', 'Open filter dialog'],
-          ['s', 'Open sort menu'],
-          ['1-9', 'Quick sort by column'],
-          ['', ''],
-          ['Other', ''],
-          ['r', 'Force refresh'],
-          ['?', 'Show this help'],
-          ['q', 'Quit']
+          [ "Navigation", "" ],
+          [ "j / ↓", "Move down" ],
+          [ "k / ↑", "Move up" ],
+          [ "PgDn", "Page down" ],
+          [ "PgUp", "Page up" ],
+          [ "Home", "Go to top" ],
+          [ "End", "Go to bottom" ],
+          [ "Enter", "Select aircraft" ],
+          [ "", "" ],
+          [ "Panels", "" ],
+          [ "Tab", "Toggle detail/stats panel" ],
+          [ "l", "Toggle log panel" ],
+          [ "", "" ],
+          [ "Filtering", "" ],
+          [ "/", "Search by callsign/ICAO" ],
+          [ "f", "Open filter dialog" ],
+          [ "s", "Open sort menu" ],
+          [ "1-9", "Quick sort by column" ],
+          [ "", "" ],
+          [ "Other", "" ],
+          [ "r", "Force refresh" ],
+          [ "?", "Show this help" ],
+          [ "q", "Quit" ]
         ].freeze
 
         def initialize
@@ -40,7 +40,7 @@ module ADSB
           top = 3
           left = 10
 
-          super(height: height, width: width, top: top, left: left, title: 'Help', border: true)
+          super(height: height, width: width, top: top, left: left, title: "Help", border: true)
         end
 
         def draw

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
+require_relative "base_window"
 
 module ADSB
   module TUI
@@ -11,14 +11,14 @@ module ADSB
 
         def initialize(width:, top:, left: 0)
           super(height: 1, width: width, top: top, left: left, border: false)
-          @text = ''
+          @text = ""
           @cursor_pos = 0
           @active = false
         end
 
         def activate
           @active = true
-          @text = ''
+          @text = ""
           @cursor_pos = 0
           Curses.curs_set(1) # Show cursor
         end
@@ -33,7 +33,7 @@ module ADSB
           @window.setpos(0, 0)
 
           @window.attron(Curses.color_pair(Color::Scheme::HEADER))
-          @window.addstr('Search: ')
+          @window.addstr("Search: ")
           @window.attroff(Curses.color_pair(Color::Scheme::HEADER))
 
           @window.addstr(@text[0, @width - 10])
@@ -60,10 +60,10 @@ module ADSB
             @text = @text[0...@cursor_pos] + @text[(@cursor_pos + 1)..]
             :update
           when Curses::Key::LEFT
-            @cursor_pos = [@cursor_pos - 1, 0].max
+            @cursor_pos = [ @cursor_pos - 1, 0 ].max
             :move
           when Curses::Key::RIGHT
-            @cursor_pos = [@cursor_pos + 1, @text.length].min
+            @cursor_pos = [ @cursor_pos + 1, @text.length ].min
             :move
           when Curses::Key::HOME
             @cursor_pos = 0
@@ -90,7 +90,7 @@ module ADSB
         end
 
         def clear_text
-          @text = ''
+          @text = ""
           @cursor_pos = 0
         end
       end

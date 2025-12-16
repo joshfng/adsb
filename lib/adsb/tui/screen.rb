@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require_relative 'curses_compat'
-require_relative 'color/scheme'
-require_relative 'windows/header_bar'
-require_relative 'windows/footer_bar'
-require_relative 'windows/aircraft_list'
-require_relative 'windows/detail_panel'
-require_relative 'windows/stats_panel'
-require_relative 'windows/search_input'
-require_relative 'windows/help_overlay'
-require_relative 'windows/filter_dialog'
-require_relative 'windows/sort_dialog'
-require_relative 'windows/log_panel'
+require_relative "curses_compat"
+require_relative "color/scheme"
+require_relative "windows/header_bar"
+require_relative "windows/footer_bar"
+require_relative "windows/aircraft_list"
+require_relative "windows/detail_panel"
+require_relative "windows/stats_panel"
+require_relative "windows/search_input"
+require_relative "windows/help_overlay"
+require_relative "windows/filter_dialog"
+require_relative "windows/sort_dialog"
+require_relative "windows/log_panel"
 
 module ADSB
   module TUI

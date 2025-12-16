@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Api::HistoryController < ApplicationController
-  before_action :validate_hours, only: [:heatmap]
-  before_action :validate_limit, only: [:heatmap, :aircraft]
-  before_action :validate_icao, only: [:aircraft]
+  before_action :validate_hours, only: [ :heatmap ]
+  before_action :validate_limit, only: [ :heatmap, :aircraft ]
+  before_action :validate_icao, only: [ :aircraft ]
 
   def stats
     history = AdsbService.receiver&.history

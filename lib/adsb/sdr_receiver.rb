@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'rtlsdr'
-require_relative 'constants'
-require_relative 'logging'
-require_relative 'sdr_config'
-require_relative 'adsb_demodulator'
-require_relative 'flight_history'
+require "rtlsdr"
+require_relative "constants"
+require_relative "logging"
+require_relative "sdr_config"
+require_relative "adsb_demodulator"
+require_relative "flight_history"
 
 # SDR Receiver for ADS-B
 # Wraps the rtlsdr gem to receive and decode ADS-B signals
@@ -51,7 +51,7 @@ class SDRReceiver
     @dump_file = nil
     dump_path = @config.dump_raw
     if dump_path
-      @dump_file = File.open(dump_path, 'wb')
+      @dump_file = File.open(dump_path, "wb")
       ADSB.logger.info "Dumping raw I/Q samples to: #{dump_path}"
     end
   end
@@ -84,7 +84,7 @@ class SDRReceiver
     @dump_file&.close
     @dump_file = nil
     close_device
-    ADSB.logger.info 'Receiver stopped'
+    ADSB.logger.info "Receiver stopped"
   end
 
   # Get current aircraft list
@@ -117,7 +117,7 @@ class SDRReceiver
 
   def open_device
     device_count = RTLSDR.device_count
-    raise 'No RTL-SDR devices found' if device_count.zero?
+    raise "No RTL-SDR devices found" if device_count.zero?
 
     device_index = @config.device_index
     raise "Invalid device index: #{device_index}" if device_index >= device_count
@@ -154,8 +154,8 @@ class SDRReceiver
 
     # Log filters
     ADSB.logger.info "Show only ICAO: #{@config.show_only}" if @config.show_only
-    ADSB.logger.info 'CRC error correction: ' + (@config.fix_errors ? 'enabled' : 'disabled')
-    ADSB.logger.info 'CRC check: ' + (@config.crc_check ? 'enabled' : 'DISABLED (not recommended)')
+    ADSB.logger.info "CRC error correction: " + (@config.fix_errors ? "enabled" : "disabled")
+    ADSB.logger.info "CRC check: " + (@config.crc_check ? "enabled" : "DISABLED (not recommended)")
   end
 
   def close_device
@@ -164,7 +164,7 @@ class SDRReceiver
   end
 
   def start_async_receive
-    ADSB.logger.info 'Starting ADS-B reception...'
+    ADSB.logger.info "Starting ADS-B reception..."
 
     # Use sync read in a thread - gem releases GVL during USB reads
     @receive_thread = Thread.new do
@@ -180,7 +180,7 @@ class SDRReceiver
       end
     end
 
-    ADSB.logger.info 'Receiver started'
+    ADSB.logger.info "Receiver started"
   end
 
   # Convert Complex samples back to 8-bit unsigned I/Q format for dump1090
@@ -191,9 +191,9 @@ class SDRReceiver
     bytes = samples.flat_map do |s|
       i_byte = (s.real * 127.5 + 127.5).round.clamp(0, 255)
       q_byte = (s.imag * 127.5 + 127.5).round.clamp(0, 255)
-      [i_byte, q_byte]
+      [ i_byte, q_byte ]
     end
-    @dump_file.write(bytes.pack('C*'))
+    @dump_file.write(bytes.pack("C*"))
   end
 
   def process_samples(samples)

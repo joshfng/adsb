@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../curses_compat'
+require_relative "../curses_compat"
 
 module ADSB
   module TUI
@@ -37,11 +37,11 @@ module ADSB
 
         def handle_normal(key)
           case key
-          when 'q', 'Q'
+          when "q", "Q"
             @app.shutdown
-          when 'j', Curses::Key::DOWN
+          when "j", Curses::Key::DOWN
             @app.scroll_down
-          when 'k', Curses::Key::UP
+          when "k", Curses::Key::UP
             @app.scroll_up
           when Curses::Key::NPAGE # Page Down
             @app.page_down
@@ -55,19 +55,19 @@ module ADSB
             @app.select_aircraft
           when 9 # Tab
             @app.toggle_panel
-          when 's', 'S'
+          when "s", "S"
             @app.show_sort_dialog
-          when '/'
+          when "/"
             @app.start_search
-          when 'f', 'F'
+          when "f", "F"
             @app.show_filter_dialog
-          when 'r', 'R'
+          when "r", "R"
             @app.force_refresh
-          when '?'
+          when "?"
             @app.show_help
-          when 'l', 'L'
+          when "l", "L"
             @app.toggle_log
-          when '1'..'9'
+          when "1".."9"
             @app.quick_sort(key.to_i)
           end
         end

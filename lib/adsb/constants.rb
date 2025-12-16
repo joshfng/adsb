@@ -50,7 +50,7 @@ module ADSB
     TC_IDENTIFICATION = (1..4).to_a
     TC_SURFACE_POSITION = (5..8).to_a
     TC_AIRBORNE_POSITION_BARO = (9..18).to_a
-    TC_AIRBORNE_VELOCITY = [19]
+    TC_AIRBORNE_VELOCITY = [ 19 ]
     TC_AIRBORNE_POSITION_GNSS = (20..22).to_a
 
     # CPR (Compact Position Reporting) constants
@@ -60,7 +60,7 @@ module ADSB
     CPR_MAX = 131_072.0                    # 2^17 for CPR normalization
 
     # Aircraft identification character lookup
-    CALLSIGN_CHARSET = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ##### ###############0123456789######'
+    CALLSIGN_CHARSET = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ##### ###############0123456789######"
 
     # Altitude decoding
     ALTITUDE_25FT_RESOLUTION = 25          # Q-bit = 1
@@ -117,11 +117,11 @@ module ADSB
 
     # Altitude bands for coverage analysis (feet)
     ALTITUDE_BANDS = [
-      { name: '0-10k', min: 0, max: 10_000 },
-      { name: '10-20k', min: 10_000, max: 20_000 },
-      { name: '20-30k', min: 20_000, max: 30_000 },
-      { name: '30-40k', min: 30_000, max: 40_000 },
-      { name: '40k+', min: 40_000, max: 100_000 }
+      { name: "0-10k", min: 0, max: 10_000 },
+      { name: "10-20k", min: 10_000, max: 20_000 },
+      { name: "20-30k", min: 20_000, max: 30_000 },
+      { name: "30-40k", min: 30_000, max: 40_000 },
+      { name: "40k+", min: 40_000, max: 100_000 }
     ].freeze
 
     # ===========================================

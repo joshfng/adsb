@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
+require_relative "base_window"
 
 module ADSB
   module TUI
@@ -8,12 +8,12 @@ module ADSB
       # Modal filter configuration dialog
       class FilterDialog < BaseWindow
         ITEMS = [
-          { key: :position_only, label: 'Position only', type: :toggle },
-          { key: :military_only, label: 'Military only', type: :toggle },
-          { key: :police_only, label: 'Police only', type: :toggle },
-          { key: :min_altitude, label: 'Min altitude', type: :number, suffix: ' ft' },
-          { key: :max_altitude, label: 'Max altitude', type: :number, suffix: ' ft' },
-          { key: :clear, label: 'Clear all filters', type: :action }
+          { key: :position_only, label: "Position only", type: :toggle },
+          { key: :military_only, label: "Military only", type: :toggle },
+          { key: :police_only, label: "Police only", type: :toggle },
+          { key: :min_altitude, label: "Min altitude", type: :number, suffix: " ft" },
+          { key: :max_altitude, label: "Max altitude", type: :number, suffix: " ft" },
+          { key: :clear, label: "Clear all filters", type: :action }
         ].freeze
 
         def initialize(filter_engine:)
@@ -22,11 +22,11 @@ module ADSB
           top = 5
           left = 20
 
-          super(height: height, width: width, top: top, left: left, title: 'Filters', border: true)
+          super(height: height, width: width, top: top, left: left, title: "Filters", border: true)
           @filter_engine = filter_engine
           @selected_index = 0
           @editing = false
-          @edit_value = ''
+          @edit_value = ""
         end
 
         def draw
@@ -45,7 +45,7 @@ module ADSB
 
           # Instructions
           row += 1
-          draw_text(row, start_col, 'Enter:Toggle  Esc:Close', Color::Scheme::DIM)
+          draw_text(row, start_col, "Enter:Toggle  Esc:Close", Color::Scheme::DIM)
         end
 
         def handle_key(key)
@@ -63,18 +63,18 @@ module ADSB
           label = item[:label].ljust(18)
 
           value = case item[:type]
-                  when :toggle
-                    @filter_engine.send(item[:key]) ? '[X]' : '[ ]'
-                  when :number
+          when :toggle
+                    @filter_engine.send(item[:key]) ? "[X]" : "[ ]"
+          when :number
                     val = @filter_engine.send(item[:key])
                     if @editing && selected
                       "[#{@edit_value}_]"
                     else
                       "#{val}#{item[:suffix]}"
                     end
-                  when :action
-                    ''
-                  end
+          when :action
+                    ""
+          end
 
           @window.setpos(row, col)
           @window.attron(attrs)
@@ -84,17 +84,17 @@ module ADSB
 
         def handle_nav_key(key)
           case key
-          when 'j', Curses::Key::DOWN
+          when "j", Curses::Key::DOWN
             @selected_index = (@selected_index + 1) % ITEMS.length
             :update
-          when 'k', Curses::Key::UP
+          when "k", Curses::Key::UP
             @selected_index = (@selected_index - 1) % ITEMS.length
             :update
-          when 10, 13, Curses::Key::ENTER, ' '
+          when 10, 13, Curses::Key::ENTER, " "
             toggle_or_edit_current
           when 27 # Escape
             :close
-          when 'q'
+          when "q"
             :close
           end
         end
@@ -156,7 +156,7 @@ module ADSB
         end
 
         def clear_all_filters
-          @filter_engine.search_text = ''
+          @filter_engine.search_text = ""
           @filter_engine.position_only = false
           @filter_engine.military_only = false
           @filter_engine.police_only = false

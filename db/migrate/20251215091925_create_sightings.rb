@@ -14,6 +14,6 @@ class CreateSightings < ActiveRecord::Migration[8.1]
     end
     add_index :sightings, :icao
     add_index :sightings, :seen_at
-    add_index :sightings, [:latitude, :longitude]
+    add_index :sightings, [ :latitude, :longitude ]
   end
 end

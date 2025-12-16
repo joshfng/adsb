@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../constants'
+require_relative "../../constants"
 
 module ADSB
   module TUI
@@ -37,8 +37,8 @@ module ADSB
         ]).freeze
 
         SORT_KEYS = {
-          icao: ->(a) { a[:icao] || '' },
-          callsign: ->(a) { a[:callsign] || 'ZZZZ' },
+          icao: ->(a) { a[:icao] || "" },
+          callsign: ->(a) { a[:callsign] || "ZZZZ" },
           altitude: ->(a) { -(a[:altitude] || -99_999) },
           distance: ->(a) { a[:distance] || TUI_DEFAULT_SORT_DISTANCE },
           speed: ->(a) { -(a[:speed] || 0) },
@@ -46,7 +46,7 @@ module ADSB
           age: ->(a) { a[:last_seen] ? Time.now - a[:last_seen] : 9999 },
           heading: ->(a) { a[:heading] || 999 },
           vrate: ->(a) { -(a[:vertical_rate]&.abs || 0) },
-          squawk: ->(a) { a[:squawk] || 'ZZZZ' }
+          squawk: ->(a) { a[:squawk] || "ZZZZ" }
         }.freeze
 
         attr_accessor :search_text, :sort_key, :sort_ascending
@@ -54,7 +54,7 @@ module ADSB
         attr_accessor :position_only, :military_only, :police_only
 
         def initialize
-          @search_text = ''
+          @search_text = ""
           @sort_key = :distance
           @sort_ascending = true
           @min_altitude = 0
@@ -79,10 +79,10 @@ module ADSB
           filters = []
           filters << "\"#{@search_text}\"" unless @search_text.empty?
           filters << "Alt:#{@min_altitude}-#{@max_altitude}" if altitude_filtered?
-          filters << 'Pos' if @position_only
-          filters << 'Mil' if @military_only
-          filters << 'LEO' if @police_only
-          filters.join(' ')
+          filters << "Pos" if @position_only
+          filters << "Mil" if @military_only
+          filters << "LEO" if @police_only
+          filters.join(" ")
         end
 
         def any_active?
@@ -127,8 +127,8 @@ module ADSB
 
           pattern = Regexp.new(Regexp.escape(@search_text), Regexp::IGNORECASE)
           list.select do |ac|
-            (ac[:icao] || '').match?(pattern) ||
-              (ac[:callsign] || '').match?(pattern)
+            (ac[:icao] || "").match?(pattern) ||
+              (ac[:callsign] || "").match?(pattern)
           end
         end
 

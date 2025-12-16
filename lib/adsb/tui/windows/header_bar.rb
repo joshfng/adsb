@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
+require_relative "base_window"
 
 module ADSB
   module TUI
@@ -24,7 +24,7 @@ module ADSB
           # Title line
           @window.setpos(0, 0)
           @window.attron(Curses::A_BOLD | Curses.color_pair(Color::Scheme::HEADER))
-          @window.addstr(' ADS-B Tracker ')
+          @window.addstr(" ADS-B Tracker ")
           @window.attroff(Curses::A_BOLD | Curses.color_pair(Color::Scheme::HEADER))
 
           # Status info
@@ -52,12 +52,12 @@ module ADSB
           # Separator line
           @window.setpos(1, 0)
           @window.attron(Curses.color_pair(Color::Scheme::BORDER))
-          @window.addstr('-' * @width)
+          @window.addstr("-" * @width)
           @window.attroff(Curses.color_pair(Color::Scheme::BORDER))
         end
 
         def format_uptime(seconds)
-          return '--' unless seconds
+          return "--" unless seconds
 
           hours = seconds / 3600
           mins = (seconds % 3600) / 60

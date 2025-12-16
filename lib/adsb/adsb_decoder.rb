@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'constants'
+require_relative "constants"
 
 # ADS-B Message Decoder
 # Decodes Mode S Extended Squitter (DF17) and other Mode S messages
@@ -117,7 +117,7 @@ module ADSBDecoder
 
     # Check if this is a short message that needs ICAO recovery
     def needs_icao_recovery?
-      @raw.length == SHORT_MESSAGE_BITS && [DF_ALTITUDE_REPLY, DF_IDENTITY_REPLY].include?(@df)
+      @raw.length == SHORT_MESSAGE_BITS && [ DF_ALTITUDE_REPLY, DF_IDENTITY_REPLY ].include?(@df)
     end
 
     def valid?
@@ -126,10 +126,10 @@ module ADSBDecoder
       # Check DF validity based on message length
       if @raw.length == LONG_MESSAGE_BITS
         # Long messages: DF17 (ADS-B), DF20 (Comm-B Alt), DF21 (Comm-B Identity)
-        [DF_ADSB, DF_COMM_B_ALT, DF_COMM_B_IDENTITY].include?(@df)
+        [ DF_ADSB, DF_COMM_B_ALT, DF_COMM_B_IDENTITY ].include?(@df)
       else
         # Short messages: DF4 (Alt Reply), DF5 (Identity Reply)
-        [DF_ALTITUDE_REPLY, DF_IDENTITY_REPLY].include?(@df)
+        [ DF_ALTITUDE_REPLY, DF_IDENTITY_REPLY ].include?(@df)
       end
     end
 
@@ -187,7 +187,7 @@ module ADSBDecoder
       c = c4 * 4 + c2 * 2 + c1
       d = d4 * 4 + d2 * 2 + d1
 
-      format('%d%d%d%d', a, b, c, d)
+      format("%d%d%d%d", a, b, c, d)
     end
 
     # Check if this is a Comm-B message (DF20 or DF21) with EHS data
@@ -206,11 +206,11 @@ module ADSBDecoder
       bds = infer_bds_register
 
       case bds
-      when '4,0'
+      when "4,0"
         decode_bds40
-      when '5,0'
+      when "5,0"
         decode_bds50
-      when '6,0'
+      when "6,0"
         decode_bds60
       else
         nil
@@ -225,17 +225,17 @@ module ADSBDecoder
 
       # BDS 4,0: Selected altitude - check for valid status bits
       if bds40_valid?
-        return '4,0'
+        return "4,0"
       end
 
       # BDS 5,0: Track and turn report
       if bds50_valid?
-        return '5,0'
+        return "5,0"
       end
 
       # BDS 6,0: Heading and speed
       if bds60_valid?
-        return '6,0'
+        return "6,0"
       end
 
       nil
@@ -299,7 +299,7 @@ module ADSBDecoder
 
     # BDS 4,0: Selected vertical intention
     def decode_bds40
-      result = { bds: '4,0' }
+      result = { bds: "4,0" }
 
       # MCP/FCU selected altitude (bits 1-13)
       if @data[0] == 1
@@ -324,7 +324,7 @@ module ADSBDecoder
 
     # BDS 5,0: Track and turn report
     def decode_bds50
-      result = { bds: '5,0' }
+      result = { bds: "5,0" }
 
       # Roll angle (bits 1-11)
       if @data[0] == 1
@@ -367,7 +367,7 @@ module ADSBDecoder
 
     # BDS 6,0: Heading and speed report
     def decode_bds60
-      result = { bds: '6,0' }
+      result = { bds: "6,0" }
 
       # Magnetic heading (bits 1-12)
       if @data[0] == 1
@@ -496,7 +496,7 @@ module ADSBDecoder
         @ca = bits_to_int(bits[5, 3])
 
         # ICAO address (bits 8-31)
-        @icao = format('%06X', bits_to_int(bits[8, 24]))
+        @icao = format("%06X", bits_to_int(bits[8, 24]))
 
         # Type code (first 5 bits of ME field, bits 32-36)
         @tc = bits_to_int(bits[32, 5])
@@ -509,7 +509,7 @@ module ADSBDecoder
         # Note: ICAO is XOR'd into the CRC, not directly available
         # For now, use CRC syndrome as pseudo-ICAO (won't match real ICAO)
         @ca = bits_to_int(bits[5, 3])  # Flight Status
-        @icao = format('%06X', bits_to_int(bits[32, 24]))  # AP field (contains ICAO XOR CRC)
+        @icao = format("%06X", bits_to_int(bits[32, 24]))  # AP field (contains ICAO XOR CRC)
         @tc = nil
         @data = bits[8, 24]  # DR + UM + AC/ID fields
       end
@@ -517,7 +517,7 @@ module ADSBDecoder
 
     def verify_crc(bits)
       # Long messages (DF17, DF20, DF21) or short messages (DF4, DF5)
-      return false unless [SHORT_MESSAGE_BITS, LONG_MESSAGE_BITS].include?(bits.length)
+      return false unless [ SHORT_MESSAGE_BITS, LONG_MESSAGE_BITS ].include?(bits.length)
 
       # Get DF to determine message type
       df = bits_to_int(bits[0, 5])
@@ -732,7 +732,7 @@ module ADSBDecoder
     nl = nl_odd
 
     # Calculate longitude
-    ni = [nl - 1, 1].max
+    ni = [ nl - 1, 1 ].max
     m = ((lon0 * (nl - 1) - lon1 * nl + 0.5).floor % ni)
     lon = (360.0 / ni) * (m + lon1)
 
@@ -750,7 +750,7 @@ module ADSBDecoder
     b = Math.cos(Math::PI * lat.abs / 180)**2
     nl = (2 * Math::PI / Math.acos(1 - a / b)).floor
 
-    [[nl, 1].max, 59].min
+    [ [ nl, 1 ].max, 59 ].min
   end
 
   def self.decode(bits, options = {})

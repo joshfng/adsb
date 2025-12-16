@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
+require_relative "base_window"
 
 module ADSB
   module TUI
@@ -12,7 +12,7 @@ module ADSB
         attr_accessor :visible
 
         def initialize(height:, width:, top:, left:)
-          super(height: height, width: width, top: top, left: left, title: 'Log', border: true)
+          super(height: height, width: width, top: top, left: left, title: "Log", border: true)
           @lines = []
           @scroll_offset = 0
           @auto_scroll = true
@@ -21,7 +21,7 @@ module ADSB
 
         def add_line(line)
           # Strip ANSI codes and truncate
-          clean_line = line.to_s.gsub(/\e\[[0-9;]*m/, '').chomp
+          clean_line = line.to_s.gsub(/\e\[[0-9;]*m/, "").chomp
           @lines << clean_line
           @lines.shift while @lines.length > MAX_LINES
 
@@ -48,7 +48,7 @@ module ADSB
             # Color based on log level
             color = color_for_line(line)
             @window.attron(Curses.color_pair(color))
-            @window.addstr(line[0, c_width - 1] || '')
+            @window.addstr(line[0, c_width - 1] || "")
             @window.attroff(Curses.color_pair(color))
           end
 
@@ -58,23 +58,23 @@ module ADSB
 
         def scroll_up
           @auto_scroll = false
-          @scroll_offset = [@scroll_offset - 1, 0].max
+          @scroll_offset = [ @scroll_offset - 1, 0 ].max
         end
 
         def scroll_down
-          @scroll_offset = [@scroll_offset + 1, max_scroll].min
+          @scroll_offset = [ @scroll_offset + 1, max_scroll ].min
           @auto_scroll = (@scroll_offset >= max_scroll)
         end
 
         def page_up
           @auto_scroll = false
           _, _, c_height, _ = content_area
-          @scroll_offset = [@scroll_offset - c_height, 0].max
+          @scroll_offset = [ @scroll_offset - c_height, 0 ].max
         end
 
         def page_down
           _, _, c_height, _ = content_area
-          @scroll_offset = [@scroll_offset + c_height, max_scroll].min
+          @scroll_offset = [ @scroll_offset + c_height, max_scroll ].min
           @auto_scroll = (@scroll_offset >= max_scroll)
         end
 
@@ -92,7 +92,7 @@ module ADSB
 
         def max_scroll
           _, _, c_height, _ = content_area
-          [@lines.length - c_height, 0].max
+          [ @lines.length - c_height, 0 ].max
         end
 
         def color_for_line(line)
@@ -117,7 +117,7 @@ module ADSB
           # Show scroll position in title area
           total = @lines.length
           pos = @scroll_offset + 1
-          indicator = @auto_scroll ? '[AUTO]' : "[#{pos}/#{total}]"
+          indicator = @auto_scroll ? "[AUTO]" : "[#{pos}/#{total}]"
 
           @window.setpos(0, @width - indicator.length - 3)
           @window.attron(Curses.color_pair(Color::Scheme::DIM))

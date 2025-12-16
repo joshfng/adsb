@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
-require_relative '../../faa_lookup'
+require_relative "base_window"
+require_relative "../../faa_lookup"
 
 module ADSB
   module TUI
@@ -9,7 +9,7 @@ module ADSB
       # Aircraft detail panel showing full info and FAA data
       class DetailPanel < BaseWindow
         def initialize(height:, width:, top:, left:)
-          super(height: height, width: width, top: top, left: left, title: 'Detail', border: true)
+          super(height: height, width: width, top: top, left: left, title: "Detail", border: true)
           @aircraft = nil
           @faa_data = nil
           @faa_lookup = nil
@@ -44,7 +44,7 @@ module ADSB
 
         def draw_no_selection
           start_row, start_col, c_height, c_width = content_area
-          msg = 'Select aircraft with Enter'
+          msg = "Select aircraft with Enter"
           row = start_row + c_height / 2
           col = start_col + (c_width - msg.length) / 2
           draw_text(row, col, msg, Color::Scheme::DIM)
@@ -55,38 +55,38 @@ module ADSB
           row = start_row
 
           # Callsign header
-          callsign = @aircraft[:callsign] || @aircraft[:icao] || 'Unknown'
+          callsign = @aircraft[:callsign] || @aircraft[:icao] || "Unknown"
           draw_text(row, start_col, callsign, Color::Scheme::HEADER, Curses::A_BOLD)
           row += 1
 
           # Badges
           badges = []
-          badges << '[MIL]' if military?
-          badges << '[LEO]' if police?
-          badges << '[EMER]' if emergency?
+          badges << "[MIL]" if military?
+          badges << "[LEO]" if police?
+          badges << "[EMER]" if emergency?
           unless badges.empty?
-            draw_text(row, start_col, badges.join(' '), Color::Scheme::STATUS_WARN)
+            draw_text(row, start_col, badges.join(" "), Color::Scheme::STATUS_WARN)
             row += 1
           end
 
           row += 1 # Blank line
 
           # Core info
-          row = draw_labeled_value(row, start_col, c_width, 'ICAO', @aircraft[:icao])
-          row = draw_labeled_value(row, start_col, c_width, 'Altitude', format_altitude(@aircraft[:altitude]))
-          row = draw_labeled_value(row, start_col, c_width, 'Speed', format_speed(@aircraft[:speed]))
-          row = draw_labeled_value(row, start_col, c_width, 'Heading', format_heading(@aircraft[:heading]))
-          row = draw_labeled_value(row, start_col, c_width, 'V/Rate', format_vrate(@aircraft[:vertical_rate]))
-          row = draw_labeled_value(row, start_col, c_width, 'Squawk', @aircraft[:squawk])
-          row = draw_labeled_value(row, start_col, c_width, 'Distance', format_distance(@aircraft[:distance]))
-          row = draw_labeled_value(row, start_col, c_width, 'Signal', format_signal(@aircraft[:signal_strength]))
-          row = draw_labeled_value(row, start_col, c_width, 'Messages', @aircraft[:messages])
+          row = draw_labeled_value(row, start_col, c_width, "ICAO", @aircraft[:icao])
+          row = draw_labeled_value(row, start_col, c_width, "Altitude", format_altitude(@aircraft[:altitude]))
+          row = draw_labeled_value(row, start_col, c_width, "Speed", format_speed(@aircraft[:speed]))
+          row = draw_labeled_value(row, start_col, c_width, "Heading", format_heading(@aircraft[:heading]))
+          row = draw_labeled_value(row, start_col, c_width, "V/Rate", format_vrate(@aircraft[:vertical_rate]))
+          row = draw_labeled_value(row, start_col, c_width, "Squawk", @aircraft[:squawk])
+          row = draw_labeled_value(row, start_col, c_width, "Distance", format_distance(@aircraft[:distance]))
+          row = draw_labeled_value(row, start_col, c_width, "Signal", format_signal(@aircraft[:signal_strength]))
+          row = draw_labeled_value(row, start_col, c_width, "Messages", @aircraft[:messages])
 
           # Position
           if @aircraft[:latitude] && @aircraft[:longitude]
             row += 1
-            pos = format('%0.4f, %0.4f', @aircraft[:latitude], @aircraft[:longitude])
-            row = draw_labeled_value(row, start_col, c_width, 'Position', pos)
+            pos = format("%0.4f, %0.4f", @aircraft[:latitude], @aircraft[:longitude])
+            row = draw_labeled_value(row, start_col, c_width, "Position", pos)
           end
 
           # EHS data
@@ -98,18 +98,18 @@ module ADSB
 
         def draw_ehs_section(row, col, width)
           ehs_fields = [
-            [:selected_altitude, 'Sel Alt', ->(v) { "#{v} ft" }],
-            [:indicated_airspeed, 'IAS', ->(v) { "#{v} kt" }],
-            [:mach, 'Mach', ->(v) { format('%.2f', v) }],
-            [:magnetic_heading, 'Mag Hdg', ->(v) { "#{v.round}°" }],
-            [:roll_angle, 'Roll', ->(v) { "#{v.round}°" }]
+            [ :selected_altitude, "Sel Alt", ->(v) { "#{v} ft" } ],
+            [ :indicated_airspeed, "IAS", ->(v) { "#{v} kt" } ],
+            [ :mach, "Mach", ->(v) { format("%.2f", v) } ],
+            [ :magnetic_heading, "Mag Hdg", ->(v) { "#{v.round}°" } ],
+            [ :roll_angle, "Roll", ->(v) { "#{v.round}°" } ]
           ]
 
           has_ehs = ehs_fields.any? { |key, _, _| @aircraft[key] }
           return row unless has_ehs
 
           row += 1
-          draw_text(row, col, '-- EHS Data --', Color::Scheme::DIM)
+          draw_text(row, col, "-- EHS Data --", Color::Scheme::DIM)
           row += 1
 
           ehs_fields.each do |key, label, formatter|
@@ -126,14 +126,14 @@ module ADSB
           return row unless @faa_data
 
           row += 1
-          draw_text(row, col, '-- Registration --', Color::Scheme::DIM)
+          draw_text(row, col, "-- Registration --", Color::Scheme::DIM)
           row += 1
 
-          row = draw_labeled_value(row, col, width, 'N-Number', @faa_data[:n_number])
-          row = draw_labeled_value(row, col, width, 'Type', "#{@faa_data[:manufacturer]} #{@faa_data[:model]}")
-          row = draw_labeled_value(row, col, width, 'Owner', @faa_data[:owner])
-          row = draw_labeled_value(row, col, width, 'Location', "#{@faa_data[:city]}, #{@faa_data[:state]}")
-          draw_labeled_value(row, col, width, 'Year', @faa_data[:year])
+          row = draw_labeled_value(row, col, width, "N-Number", @faa_data[:n_number])
+          row = draw_labeled_value(row, col, width, "Type", "#{@faa_data[:manufacturer]} #{@faa_data[:model]}")
+          row = draw_labeled_value(row, col, width, "Owner", @faa_data[:owner])
+          row = draw_labeled_value(row, col, width, "Location", "#{@faa_data[:city]}, #{@faa_data[:state]}")
+          draw_labeled_value(row, col, width, "Year", @faa_data[:year])
         end
 
         def draw_labeled_value(row, col, width, label, value)
@@ -167,18 +167,18 @@ module ADSB
           elsif vr < 0
             "#{vr} fpm"
           else
-            '0 fpm'
+            "0 fpm"
           end
         end
 
         def format_distance(dist)
-          dist ? format('%.1f nm', dist) : nil
+          dist ? format("%.1f nm", dist) : nil
         end
 
         def format_signal(sig)
           return nil unless sig
 
-          pct = [(sig / 0.4 * 100).round, 100].min
+          pct = [ (sig / 0.4 * 100).round, 100 ].min
           "#{pct}%"
         end
 

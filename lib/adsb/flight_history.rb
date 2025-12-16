@@ -158,7 +158,7 @@ class FlightHistory
     # Range histogram
     histogram = Array.new(COVERAGE_HISTOGRAM_BUCKETS, 0)
     distances.each do |d|
-      bucket = [(d / COVERAGE_HISTOGRAM_BUCKET_NM).to_i, COVERAGE_HISTOGRAM_BUCKETS - 1].min
+      bucket = [ (d / COVERAGE_HISTOGRAM_BUCKET_NM).to_i, COVERAGE_HISTOGRAM_BUCKETS - 1 ].min
       histogram[bucket] += 1
     end
 

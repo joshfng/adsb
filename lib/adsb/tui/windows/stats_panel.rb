@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
-require_relative '../components/sparkline'
+require_relative "base_window"
+require_relative "../components/sparkline"
 
 module ADSB
   module TUI
@@ -9,7 +9,7 @@ module ADSB
       # Statistics panel showing receiver and history stats
       class StatsPanel < BaseWindow
         def initialize(height:, width:, top:, left:)
-          super(height: height, width: width, top: top, left: left, title: 'Statistics', border: true)
+          super(height: height, width: width, top: top, left: left, title: "Statistics", border: true)
           @receiver_stats = {}
           @history_stats = {}
           @message_history = []
@@ -36,31 +36,31 @@ module ADSB
           row = start_row
 
           # Receiver section
-          draw_text(row, start_col, '-- Receiver --', Color::Scheme::DIM)
+          draw_text(row, start_col, "-- Receiver --", Color::Scheme::DIM)
           row += 1
 
-          row = draw_stat(row, start_col, c_width, 'Frequency', format_freq(@receiver_stats[:frequency]))
-          row = draw_stat(row, start_col, c_width, 'Sample Rate', format_rate(@receiver_stats[:sample_rate]))
-          row = draw_stat(row, start_col, c_width, 'Gain', format_gain(@receiver_stats[:gain]))
-          row = draw_stat(row, start_col, c_width, 'Uptime', format_uptime(@receiver_stats[:uptime_seconds]))
+          row = draw_stat(row, start_col, c_width, "Frequency", format_freq(@receiver_stats[:frequency]))
+          row = draw_stat(row, start_col, c_width, "Sample Rate", format_rate(@receiver_stats[:sample_rate]))
+          row = draw_stat(row, start_col, c_width, "Gain", format_gain(@receiver_stats[:gain]))
+          row = draw_stat(row, start_col, c_width, "Uptime", format_uptime(@receiver_stats[:uptime_seconds]))
 
           row += 1
 
           # Message stats
-          draw_text(row, start_col, '-- Messages --', Color::Scheme::DIM)
+          draw_text(row, start_col, "-- Messages --", Color::Scheme::DIM)
           row += 1
 
-          row = draw_stat(row, start_col, c_width, 'Total', format_number(@receiver_stats[:messages_total]))
-          row = draw_stat(row, start_col, c_width, 'Position', format_number(@receiver_stats[:messages_position]))
-          row = draw_stat(row, start_col, c_width, 'Velocity', format_number(@receiver_stats[:messages_velocity]))
-          row = draw_stat(row, start_col, c_width, 'Ident', format_number(@receiver_stats[:messages_identification]))
-          row = draw_stat(row, start_col, c_width, 'Preambles', format_number(@receiver_stats[:preambles_detected]))
-          row = draw_stat(row, start_col, c_width, 'CRC Fails', format_number(@receiver_stats[:crc_failures]))
+          row = draw_stat(row, start_col, c_width, "Total", format_number(@receiver_stats[:messages_total]))
+          row = draw_stat(row, start_col, c_width, "Position", format_number(@receiver_stats[:messages_position]))
+          row = draw_stat(row, start_col, c_width, "Velocity", format_number(@receiver_stats[:messages_velocity]))
+          row = draw_stat(row, start_col, c_width, "Ident", format_number(@receiver_stats[:messages_identification]))
+          row = draw_stat(row, start_col, c_width, "Preambles", format_number(@receiver_stats[:preambles_detected]))
+          row = draw_stat(row, start_col, c_width, "CRC Fails", format_number(@receiver_stats[:crc_failures]))
 
           # Message rate sparkline
           row += 1
           sparkline = Components::Sparkline.new(@message_history, width: c_width - 8)
-          draw_text(row, start_col, 'Rate:', Color::Scheme::DIM)
+          draw_text(row, start_col, "Rate:", Color::Scheme::DIM)
           draw_text(row, start_col + 6, sparkline.render, Color::Scheme::HEADER)
 
           row += 2
@@ -68,13 +68,13 @@ module ADSB
           # History section (if available)
           return unless @history_stats && !@history_stats.empty?
 
-          draw_text(row, start_col, '-- History --', Color::Scheme::DIM)
+          draw_text(row, start_col, "-- History --", Color::Scheme::DIM)
           row += 1
 
-          row = draw_stat(row, start_col, c_width, 'Aircraft Today', @history_stats[:aircraft_today])
-          row = draw_stat(row, start_col, c_width, 'Total Aircraft', @history_stats[:total_aircraft_seen])
-          row = draw_stat(row, start_col, c_width, 'Sightings Today', format_number(@history_stats[:sightings_today]))
-          draw_stat(row, start_col, c_width, 'Total Sightings', format_number(@history_stats[:sightings_total]))
+          row = draw_stat(row, start_col, c_width, "Aircraft Today", @history_stats[:aircraft_today])
+          row = draw_stat(row, start_col, c_width, "Total Aircraft", @history_stats[:total_aircraft_seen])
+          row = draw_stat(row, start_col, c_width, "Sightings Today", format_number(@history_stats[:sightings_today]))
+          draw_stat(row, start_col, c_width, "Total Sightings", format_number(@history_stats[:sightings_total]))
         end
 
         private
@@ -116,7 +116,7 @@ module ADSB
           hours = seconds / 3600
           mins = (seconds % 3600) / 60
           secs = seconds % 60
-          format('%02d:%02d:%02d', hours, mins, secs)
+          format("%02d:%02d:%02d", hours, mins, secs)
         end
 
         def format_number(num)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../constants'
+require_relative "../../constants"
 
 module ADSB
   module TUI

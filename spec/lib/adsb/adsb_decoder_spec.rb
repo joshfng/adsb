@@ -35,7 +35,7 @@ RSpec.describe ADSBDecoder do
     end
 
     it 'rejects messages with wrong length' do
-      short_bits = [0] * 100
+      short_bits = [ 0 ] * 100
       msg = ADSBDecoder.decode(short_bits)
 
       expect(msg.crc_ok).to be(false)
@@ -151,7 +151,7 @@ RSpec.describe ADSBDecoder do
     describe '#identity_reply?' do
       it 'returns true for DF5 messages' do
         # DF5 = 00101 binary (5)
-        bits = [0, 0, 1, 0, 1] + Array.new(51, 0) # 56 bits total for DF5
+        bits = [ 0, 0, 1, 0, 1 ] + Array.new(51, 0) # 56 bits total for DF5
         msg = ADSBDecoder.decode(bits)
 
         expect(msg.identity_reply?).to be(true)
@@ -161,7 +161,7 @@ RSpec.describe ADSBDecoder do
         # DF21 = 10101 binary (21)
         # For 112-bit messages, CRC must be valid for parsing to occur
         # The decoder skips parsing if CRC fails, so we test the df directly
-        msg = ADSBDecoder::Message.new([1, 0, 1, 0, 1] + Array.new(107, 0))
+        msg = ADSBDecoder::Message.new([ 1, 0, 1, 0, 1 ] + Array.new(107, 0))
 
         # CRC will fail, but we can still check if identity_reply? would work
         # if df was set. Since crc_ok is false, it won't parse, so let's test
@@ -196,13 +196,13 @@ RSpec.describe ADSBDecoder do
         # D=0 means d1=0, d2=0, d4=0
         # Format: C1 A1 C2 A2 C4 A4 X B1 D1 B2 D2 B4 D4
         # For 1200: 0 1 0 0 0 0 0 0 0 1 0 0 0
-        id_bits = [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+        id_bits = [ 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 ]
 
         # Build DF5 message: DF(5 bits) + FS(3 bits) + DR(5 bits) + UM(6 bits) + ID(13 bits) + CRC(24 bits)
-        df_bits = [0, 0, 1, 0, 1]
-        fs_bits = [0, 0, 0]
-        dr_bits = [0, 0, 0, 0, 0]
-        um_bits = [0, 0, 0, 0, 0, 0]
+        df_bits = [ 0, 0, 1, 0, 1 ]
+        fs_bits = [ 0, 0, 0 ]
+        dr_bits = [ 0, 0, 0, 0, 0 ]
+        um_bits = [ 0, 0, 0, 0, 0, 0 ]
         crc_bits = Array.new(24, 0)
 
         bits = df_bits + fs_bits + dr_bits + um_bits + id_bits + crc_bits
@@ -220,12 +220,12 @@ RSpec.describe ADSBDecoder do
         # D=0 means d1=0, d2=0, d4=0
         # Format: C1 A1 C2 A2 C4 A4 X B1 D1 B2 D2 B4 D4
         # For 7700: 0 1 0 1 0 1 0 1 0 1 0 1 0
-        id_bits = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+        id_bits = [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 ]
 
-        df_bits = [0, 0, 1, 0, 1]
-        fs_bits = [0, 0, 0]
-        dr_bits = [0, 0, 0, 0, 0]
-        um_bits = [0, 0, 0, 0, 0, 0]
+        df_bits = [ 0, 0, 1, 0, 1 ]
+        fs_bits = [ 0, 0, 0 ]
+        dr_bits = [ 0, 0, 0, 0, 0 ]
+        um_bits = [ 0, 0, 0, 0, 0, 0 ]
         crc_bits = Array.new(24, 0)
 
         bits = df_bits + fs_bits + dr_bits + um_bits + id_bits + crc_bits
@@ -242,12 +242,12 @@ RSpec.describe ADSBDecoder do
         # D=0 means d1=0, d2=0, d4=0
         # Format: C1 A1 C2 A2 C4 A4 X B1 D1 B2 D2 B4 D4
         # For 7500: 0 1 0 1 0 1 0 1 0 0 0 1 0
-        id_bits = [0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0]
+        id_bits = [ 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0 ]
 
-        df_bits = [0, 0, 1, 0, 1]
-        fs_bits = [0, 0, 0]
-        dr_bits = [0, 0, 0, 0, 0]
-        um_bits = [0, 0, 0, 0, 0, 0]
+        df_bits = [ 0, 0, 1, 0, 1 ]
+        fs_bits = [ 0, 0, 0 ]
+        dr_bits = [ 0, 0, 0, 0, 0 ]
+        um_bits = [ 0, 0, 0, 0, 0, 0 ]
         crc_bits = Array.new(24, 0)
 
         bits = df_bits + fs_bits + dr_bits + um_bits + id_bits + crc_bits
@@ -264,12 +264,12 @@ RSpec.describe ADSBDecoder do
         # D=0 means d1=0, d2=0, d4=0
         # Format: C1 A1 C2 A2 C4 A4 X B1 D1 B2 D2 B4 D4
         # For 7600: 0 1 0 1 0 1 0 0 0 1 0 1 0
-        id_bits = [0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0]
+        id_bits = [ 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0 ]
 
-        df_bits = [0, 0, 1, 0, 1]
-        fs_bits = [0, 0, 0]
-        dr_bits = [0, 0, 0, 0, 0]
-        um_bits = [0, 0, 0, 0, 0, 0]
+        df_bits = [ 0, 0, 1, 0, 1 ]
+        fs_bits = [ 0, 0, 0 ]
+        dr_bits = [ 0, 0, 0, 0, 0 ]
+        um_bits = [ 0, 0, 0, 0, 0, 0 ]
         crc_bits = Array.new(24, 0)
 
         bits = df_bits + fs_bits + dr_bits + um_bits + id_bits + crc_bits
@@ -305,13 +305,13 @@ RSpec.describe ADSBDecoder do
   describe 'EHS (Enhanced Surveillance) decoding' do
     describe '#comm_b?' do
       it 'returns true for DF20 messages' do
-        msg = ADSBDecoder::Message.new([1, 0, 1, 0, 0] + Array.new(107, 0))
+        msg = ADSBDecoder::Message.new([ 1, 0, 1, 0, 0 ] + Array.new(107, 0))
         msg.instance_variable_set(:@df, 20)
         expect(msg.comm_b?).to be(true)
       end
 
       it 'returns true for DF21 messages' do
-        msg = ADSBDecoder::Message.new([1, 0, 1, 0, 1] + Array.new(107, 0))
+        msg = ADSBDecoder::Message.new([ 1, 0, 1, 0, 1 ] + Array.new(107, 0))
         msg.instance_variable_set(:@df, 21)
         expect(msg.comm_b?).to be(true)
       end
@@ -331,7 +331,7 @@ RSpec.describe ADSBDecoder do
       end
 
       it 'returns nil when data field is missing' do
-        msg = ADSBDecoder::Message.new([1, 0, 1, 0, 0] + Array.new(107, 0))
+        msg = ADSBDecoder::Message.new([ 1, 0, 1, 0, 0 ] + Array.new(107, 0))
         msg.instance_variable_set(:@df, 20)
         msg.instance_variable_set(:@data, nil)
         expect(msg.ehs_data).to be_nil
@@ -345,7 +345,7 @@ RSpec.describe ADSBDecoder do
 
           # BDS 4,0: status bit = 1, altitude = 350 (350 * 16 = 5600 ft)
           # Bit 0 = 1 (status), bits 1-12 = altitude
-          data = [1] + int_to_bits(350, 12) + Array.new(43, 0)
+          data = [ 1 ] + int_to_bits(350, 12) + Array.new(43, 0)
           msg.instance_variable_set(:@data, data)
 
           ehs = msg.ehs_data
@@ -404,13 +404,13 @@ RSpec.describe ADSBDecoder do
     describe '.recover' do
       it 'returns nil for non-56-bit messages' do
         bits = Array.new(112, 0)
-        result = ADSBDecoder::ICAORecovery.recover(bits, ['A12345'])
+        result = ADSBDecoder::ICAORecovery.recover(bits, [ 'A12345' ])
         expect(result).to be_nil
       end
 
       it 'returns nil when no candidate matches' do
         bits = Array.new(56, 0)
-        result = ADSBDecoder::ICAORecovery.recover(bits, ['A12345', 'B67890'])
+        result = ADSBDecoder::ICAORecovery.recover(bits, [ 'A12345', 'B67890' ])
         expect(result).to be_nil
       end
 
@@ -421,7 +421,7 @@ RSpec.describe ADSBDecoder do
         icao_int = target_icao.to_i(16)
 
         # Create data bits (DF=5 identity reply: 00101 + some data)
-        data_bits = [0, 0, 1, 0, 1]  # DF=5
+        data_bits = [ 0, 0, 1, 0, 1 ]  # DF=5
         data_bits += Array.new(27, 0)  # Fill remaining data bits
 
         # Compute CRC of the data portion
@@ -437,7 +437,7 @@ RSpec.describe ADSBDecoder do
         bits = data_bits + ap_bits
 
         # Try recovery
-        result = ADSBDecoder::ICAORecovery.recover(bits, ['FFFFFF', target_icao, '000000'])
+        result = ADSBDecoder::ICAORecovery.recover(bits, [ 'FFFFFF', target_icao, '000000' ])
         expect(result).to eq(target_icao)
       end
 
@@ -445,7 +445,7 @@ RSpec.describe ADSBDecoder do
         target_icao = 'B67890'
         icao_int = target_icao.to_i(16)
 
-        data_bits = [0, 0, 1, 0, 0]  # DF=4
+        data_bits = [ 0, 0, 1, 0, 0 ]  # DF=4
         data_bits += Array.new(27, 0)
 
         crc = ADSBDecoder::ICAORecovery.compute_crc(data_bits)
@@ -453,7 +453,7 @@ RSpec.describe ADSBDecoder do
         ap_bits = 24.times.map { |i| (ap_field >> (23 - i)) & 1 }
         bits = data_bits + ap_bits
 
-        result = ADSBDecoder::ICAORecovery.recover(bits, [target_icao, 'AAAAAA'])
+        result = ADSBDecoder::ICAORecovery.recover(bits, [ target_icao, 'AAAAAA' ])
         expect(result).to eq(target_icao)
       end
     end
@@ -463,7 +463,7 @@ RSpec.describe ADSBDecoder do
     describe '#needs_icao_recovery?' do
       it 'returns true for DF4 short messages' do
         bits = Array.new(56, 0)
-        bits[0..4] = [0, 0, 1, 0, 0]  # DF=4
+        bits[0..4] = [ 0, 0, 1, 0, 0 ]  # DF=4
         msg = ADSBDecoder::Message.new(bits)
         msg.instance_variable_set(:@crc_ok, true)
         msg.instance_variable_set(:@df, 4)
@@ -473,7 +473,7 @@ RSpec.describe ADSBDecoder do
 
       it 'returns true for DF5 short messages' do
         bits = Array.new(56, 0)
-        bits[0..4] = [0, 0, 1, 0, 1]  # DF=5
+        bits[0..4] = [ 0, 0, 1, 0, 1 ]  # DF=5
         msg = ADSBDecoder::Message.new(bits)
         msg.instance_variable_set(:@crc_ok, true)
         msg.instance_variable_set(:@df, 5)
@@ -483,7 +483,7 @@ RSpec.describe ADSBDecoder do
 
       it 'returns false for long messages (DF17)' do
         bits = Array.new(112, 0)
-        bits[0..4] = [1, 0, 0, 0, 1]  # DF=17
+        bits[0..4] = [ 1, 0, 0, 0, 1 ]  # DF=17
         msg = ADSBDecoder::Message.new(bits)
         msg.instance_variable_set(:@crc_ok, true)
         msg.instance_variable_set(:@df, 17)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'constants'
+require_relative "constants"
 
 # Configuration for SDR receiver
 # Provides dump1090-compatible options
@@ -61,23 +61,23 @@ class SDRConfig
   # Create from environment variables (for web mode)
   def self.from_env
     new(
-      device_index: ENV.fetch('ADSB_DEVICE_INDEX', '0').to_i,
-      gain: parse_gain(ENV['ADSB_GAIN']),
-      frequency: ENV.fetch('ADSB_FREQUENCY', FREQUENCY_HZ.to_s).to_i,
-      receiver_lat: ENV['ADSB_LAT']&.to_f,
-      receiver_lon: ENV['ADSB_LON']&.to_f,
-      max_range_nm: ENV.fetch('ADSB_MAX_RANGE', '300').to_i,
-      fix_errors: ENV['ADSB_NO_FIX'] != '1',
-      crc_check: ENV['ADSB_NO_CRC_CHECK'] != '1',
-      show_only: ENV['ADSB_SHOW_ONLY']&.upcase,
-      snip_level: ENV['ADSB_SNIP']&.to_f,
-      dump_raw: ENV['ADSB_DUMP_RAW']
+      device_index: ENV.fetch("ADSB_DEVICE_INDEX", "0").to_i,
+      gain: parse_gain(ENV["ADSB_GAIN"]),
+      frequency: ENV.fetch("ADSB_FREQUENCY", FREQUENCY_HZ.to_s).to_i,
+      receiver_lat: ENV["ADSB_LAT"]&.to_f,
+      receiver_lon: ENV["ADSB_LON"]&.to_f,
+      max_range_nm: ENV.fetch("ADSB_MAX_RANGE", "300").to_i,
+      fix_errors: ENV["ADSB_NO_FIX"] != "1",
+      crc_check: ENV["ADSB_NO_CRC_CHECK"] != "1",
+      show_only: ENV["ADSB_SHOW_ONLY"]&.upcase,
+      snip_level: ENV["ADSB_SNIP"]&.to_f,
+      dump_raw: ENV["ADSB_DUMP_RAW"]
     )
   end
 
   # Parse gain value from string
   def self.parse_gain(value)
-    return :max if value.nil? || value.empty? || value == 'max'
+    return :max if value.nil? || value.empty? || value == "max"
     value.to_f
   end
 end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative 'constants'
-require_relative 'logging'
-require_relative 'adsb_decoder'
+require_relative "constants"
+require_relative "logging"
+require_relative "adsb_decoder"
 
 # ADS-B Demodulator
 # Converts raw I/Q samples to decoded ADS-B messages
@@ -83,7 +83,7 @@ class ADSBDemodulator
           end
           msg.signal_strength = signal_level
           messages << msg
-          fix_note = msg.crc_fixed? ? " [FIXED bit #{msg.error_bit}]" : ''
+          fix_note = msg.crc_fixed? ? " [FIXED bit #{msg.error_bit}]" : ""
           ADSB.logger.debug "[ADSB] ICAO=#{msg.icao} DF=#{msg.df} TC=#{msg.tc} sig=#{(signal_level * 1000).round}#{fix_note} #{describe_message(msg)}"
         elsif bits
           @mutex.synchronize do
@@ -145,7 +145,7 @@ class ADSBDemodulator
         parts << "mach=#{ehs[:mach]}" if ehs[:mach]
       end
     end
-    parts.join(' ')
+    parts.join(" ")
   end
 
   def log_stats
@@ -156,7 +156,7 @@ class ADSBDemodulator
       @preamble_count = 0
       @crc_fail_count = 0
       @sample_count = 0
-      [pc, cfc, sc]
+      [ pc, cfc, sc ]
     end
 
     elapsed = Time.now - @last_stats_time + 0.001

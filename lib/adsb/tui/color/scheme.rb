@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../curses_compat'
+require_relative "../curses_compat"
 
 module ADSB
   module TUI

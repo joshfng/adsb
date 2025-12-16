@@ -5,7 +5,7 @@ module ADSB
     module Components
       # ASCII sparkline for message rates
       class Sparkline
-        CHARS = [' ', '_', '.', '-', '~', '^', '*', '#'].freeze
+        CHARS = [ " ", "_", ".", "-", "~", "^", "*", "#" ].freeze
 
         def initialize(values, width: 20)
           @values = values || []
@@ -13,11 +13,11 @@ module ADSB
         end
 
         def render
-          return ' ' * @width if @values.empty?
+          return " " * @width if @values.empty?
 
           # Take last N values to fit width
           data = @values.last(@width)
-          return ' ' * @width if data.empty?
+          return " " * @width if data.empty?
 
           # Calculate deltas (rate of change)
           deltas = []
@@ -25,7 +25,7 @@ module ADSB
             deltas << (b - a)
           end
 
-          return ' ' * @width if deltas.empty?
+          return " " * @width if deltas.empty?
 
           # Normalize to character range
           max_delta = deltas.map(&:abs).max

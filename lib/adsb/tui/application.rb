@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'curses_compat'
-require_relative '../constants'
-require_relative '../logging'
-require_relative '../sdr_config'
-require_relative '../sdr_receiver'
-require_relative 'color/scheme'
-require_relative 'screen'
-require_relative 'data/aircraft_store'
-require_relative 'data/filter_engine'
-require_relative 'input/key_handler'
-require_relative 'tui_logger'
+require_relative "curses_compat"
+require_relative "../constants"
+require_relative "../logging"
+require_relative "../sdr_config"
+require_relative "../sdr_receiver"
+require_relative "color/scheme"
+require_relative "screen"
+require_relative "data/aircraft_store"
+require_relative "data/filter_engine"
+require_relative "input/key_handler"
+require_relative "tui_logger"
 
 module ADSB
   module TUI
@@ -203,17 +203,17 @@ module ADSB
         end
 
         @receiver.start
-        ADSB.logger.info 'TUI: Receiver started'
+        ADSB.logger.info "TUI: Receiver started"
       end
 
       def setup_signals
         # Handle terminal resize
-        Signal.trap('WINCH') do
+        Signal.trap("WINCH") do
           @refresh_mutex.synchronize { @needs_refresh = true }
         end
 
         # Handle interrupt gracefully
-        Signal.trap('INT') do
+        Signal.trap("INT") do
           @running = false
         end
       end
@@ -299,7 +299,7 @@ module ADSB
         @receiver&.stop
         @screen&.close
         Curses.close_screen
-        ADSB.logger.info 'TUI: Shutdown complete'
+        ADSB.logger.info "TUI: Shutdown complete"
       end
     end
   end

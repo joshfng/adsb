@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../curses_compat'
+require_relative "../curses_compat"
 
 module ADSB
   module TUI
@@ -48,7 +48,7 @@ module ADSB
           return unless @border
 
           @window.attron(Curses.color_pair(Color::Scheme::BORDER))
-          @window.box('|', '-')
+          @window.box("|", "-")
           @window.attroff(Curses.color_pair(Color::Scheme::BORDER))
         end
 
@@ -64,9 +64,9 @@ module ADSB
         # Returns content area dimensions [start_row, start_col, content_height, content_width]
         def content_area
           if @border
-            [1, 1, @height - 2, @width - 2]
+            [ 1, 1, @height - 2, @width - 2 ]
           else
-            [0, 0, @height, @width]
+            [ 0, 0, @height, @width ]
           end
         end
 
@@ -95,7 +95,7 @@ module ADSB
         # Clear content area
         def clear_content
           start_row, start_col, c_height, c_width = content_area
-          blank = ' ' * c_width
+          blank = " " * c_width
           c_height.times do |i|
             @window.setpos(start_row + i, start_col)
             @window.addstr(blank)

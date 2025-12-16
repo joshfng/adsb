@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'base_window'
-require_relative '../color/scheme'
+require_relative "base_window"
+require_relative "../color/scheme"
 
 module ADSB
   module TUI
@@ -9,22 +9,22 @@ module ADSB
       # Scrollable aircraft list with sorting and selection
       class AircraftList < BaseWindow
         COLUMNS = [
-          { key: :icao,          label: 'ICAO',   width: 7 },
-          { key: :callsign,      label: 'Call',   width: 8 },
-          { key: :altitude,      label: 'Alt',    width: 7 },
-          { key: :speed,         label: 'Spd',    width: 5 },
-          { key: :heading,       label: 'Hdg',    width: 4 },
-          { key: :distance,      label: 'Dist',   width: 6 },
-          { key: :vertical_rate, label: 'VRate',  width: 6 },
-          { key: :squawk,        label: 'Sqwk',   width: 5 },
-          { key: :signal,        label: 'Sig',    width: 4 },
-          { key: :age,           label: 'Age',    width: 4 }
+          { key: :icao,          label: "ICAO",   width: 7 },
+          { key: :callsign,      label: "Call",   width: 8 },
+          { key: :altitude,      label: "Alt",    width: 7 },
+          { key: :speed,         label: "Spd",    width: 5 },
+          { key: :heading,       label: "Hdg",    width: 4 },
+          { key: :distance,      label: "Dist",   width: 6 },
+          { key: :vertical_rate, label: "VRate",  width: 6 },
+          { key: :squawk,        label: "Sqwk",   width: 5 },
+          { key: :signal,        label: "Sig",    width: 4 },
+          { key: :age,           label: "Age",    width: 4 }
         ].freeze
 
         attr_reader :selected_index, :aircraft
 
         def initialize(height:, width:, top:, left:, filter_engine: nil)
-          super(height: height, width: width, top: top, left: left, title: 'Aircraft', border: true)
+          super(height: height, width: width, top: top, left: left, title: "Aircraft", border: true)
           @scroll_offset = 0
           @selected_index = 0
           @aircraft = []
@@ -48,28 +48,28 @@ module ADSB
         def scroll_up
           return if @aircraft.empty?
 
-          @selected_index = [@selected_index - 1, 0].max
+          @selected_index = [ @selected_index - 1, 0 ].max
           adjust_scroll
         end
 
         def scroll_down
           return if @aircraft.empty?
 
-          @selected_index = [@selected_index + 1, @aircraft.length - 1].min
+          @selected_index = [ @selected_index + 1, @aircraft.length - 1 ].min
           adjust_scroll
         end
 
         def page_up
           return if @aircraft.empty?
 
-          @selected_index = [@selected_index - visible_rows, 0].max
+          @selected_index = [ @selected_index - visible_rows, 0 ].max
           adjust_scroll
         end
 
         def page_down
           return if @aircraft.empty?
 
-          @selected_index = [@selected_index + visible_rows, @aircraft.length - 1].min
+          @selected_index = [ @selected_index + visible_rows, @aircraft.length - 1 ].min
           adjust_scroll
         end
 
@@ -79,7 +79,7 @@ module ADSB
         end
 
         def end_list
-          @selected_index = [@aircraft.length - 1, 0].max
+          @selected_index = [ @aircraft.length - 1, 0 ].max
           adjust_scroll
         end
 
@@ -122,7 +122,7 @@ module ADSB
             aircraft_idx = @scroll_offset + i
 
             @window.setpos(row_num, start_col)
-            @window.addstr(' ' * (c_width - 1)) # Clear row
+            @window.addstr(" " * (c_width - 1)) # Clear row
 
             next if aircraft_idx >= @aircraft.length
 
@@ -138,9 +138,9 @@ module ADSB
 
           # Special markers
           markers = []
-          markers << '*' if @filter_engine&.military?(ac)
-          markers << '^' if @filter_engine&.police?(ac)
-          markers << '!' if Color::Scheme.emergency_squawk?(ac[:squawk])
+          markers << "*" if @filter_engine&.military?(ac)
+          markers << "^" if @filter_engine&.police?(ac)
+          markers << "!" if Color::Scheme.emergency_squawk?(ac[:squawk])
           marker_str = markers.join
 
           @window.setpos(row, col)
@@ -177,52 +177,52 @@ module ADSB
         def format_column(ac, key)
           case key
           when :icao
-            ac[:icao] || '--'
+            ac[:icao] || "--"
           when :callsign
-            ac[:callsign] || '--'
+            ac[:callsign] || "--"
           when :altitude
-            ac[:altitude] ? "#{ac[:altitude]}" : '--'
+            ac[:altitude] ? "#{ac[:altitude]}" : "--"
           when :speed
-            ac[:speed] ? "#{ac[:speed]}" : '--'
+            ac[:speed] ? "#{ac[:speed]}" : "--"
           when :heading
-            ac[:heading] ? "#{ac[:heading].round}" : '--'
+            ac[:heading] ? "#{ac[:heading].round}" : "--"
           when :distance
-            ac[:distance] ? format('%.1f', ac[:distance]) : '--'
+            ac[:distance] ? format("%.1f", ac[:distance]) : "--"
           when :vertical_rate
             format_vrate(ac[:vertical_rate])
           when :squawk
-            ac[:squawk] || '--'
+            ac[:squawk] || "--"
           when :signal
             format_signal(ac[:signal_strength])
           when :age
             format_age(ac[:last_seen])
           else
-            '--'
+            "--"
           end
         end
 
         def format_vrate(vrate)
-          return '--' unless vrate
+          return "--" unless vrate
 
           if vrate > 0
             "+#{vrate}"[0, 5]
           elsif vrate < 0
             vrate.to_s[0, 5]
           else
-            '0'
+            "0"
           end
         end
 
         def format_signal(strength)
-          return '--' unless strength
+          return "--" unless strength
 
           # Convert to percentage (max around 0.4)
-          pct = [(strength / 0.4 * 100).round, 100].min
+          pct = [ (strength / 0.4 * 100).round, 100 ].min
           "#{pct}%"
         end
 
         def format_age(last_seen)
-          return '--' unless last_seen
+          return "--" unless last_seen
 
           age = Time.now - last_seen
           if age < 60
@@ -244,7 +244,7 @@ module ADSB
           visible = visible_rows
           return if total <= visible
 
-          bar_size = [(bar_height * visible / total.to_f).ceil, 1].max
+          bar_size = [ (bar_height * visible / total.to_f).ceil, 1 ].max
           bar_pos = (bar_height * @scroll_offset / total.to_f).round
 
           bar_col = @width - 2
@@ -252,10 +252,10 @@ module ADSB
             @window.setpos(start_row + 1 + i, bar_col)
             if i >= bar_pos && i < bar_pos + bar_size
               @window.attron(Curses.color_pair(Color::Scheme::HEADER))
-              @window.addstr('|')
+              @window.addstr("|")
               @window.attroff(Curses.color_pair(Color::Scheme::HEADER))
             else
-              @window.addstr(':')
+              @window.addstr(":")
             end
           end
         end
@@ -280,7 +280,7 @@ module ADSB
           end
 
           # Clamp scroll offset
-          max_offset = [@aircraft.length - rows, 0].max
+          max_offset = [ @aircraft.length - rows, 0 ].max
           @scroll_offset = @scroll_offset.clamp(0, max_offset)
         end
       end
