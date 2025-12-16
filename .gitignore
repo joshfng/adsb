@@ -37,3 +37,4 @@
 /db/seeds/faa/*.txt
 /db/seeds/faa/*.pdf
 
+spec/examples.txt
