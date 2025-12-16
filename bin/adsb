@@ -1,0 +1,243 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# ADS-B Flight Tracker
+# Usage:
+#   bin/adsb              Start web UI (default)
+#   bin/adsb -i           Start interactive TUI
+#   bin/adsb -w           Start web UI
+#   bin/adsb -v           Verbose logging
+#   bin/adsb -p 8080      Web UI on custom port
+#
+# dump1090-compatible options:
+#   --device-index <n>    Select RTL-SDR device
+#   --gain <db>           Set gain
+#   --freq <hz>           Set frequency
+#   --lat/--lon           Receiver position
+#   --max-range <nm>      Max decode range
+#   --fix/--no-fix        CRC error correction
+#   --show-only <icao>    Filter to single aircraft
+
+require "optparse"
+
+# Default options
+options = {
+  mode: :web,
+  port: 5000,
+  host: "127.0.0.1",
+  verbose: false,
+  debug: false,
+  # SDR options (dump1090-compatible)
+  device_index: 0,
+  gain: :max,
+  frequency: 1_090_000_000,
+  receiver_lat: nil,
+  receiver_lon: nil,
+  max_range_nm: 300,
+  fix_errors: true,
+  crc_check: true,
+  show_only: nil,
+  snip_level: nil,
+  dump_raw: nil
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options]"
+
+  opts.separator ""
+  opts.separator "ADS-B Flight Tracker - SDR-based aircraft tracking"
+  opts.separator ""
+  opts.separator "Mode:"
+
+  opts.on("-i", "--interactive", "Start interactive TUI") do
+    options[:mode] = :tui
+  end
+
+  opts.on("-w", "--web", "Start web UI (default)") do
+    options[:mode] = :web
+  end
+
+  opts.on("--net", "Enable networking (start web server)") do
+    options[:mode] = :web
+  end
+
+  opts.separator ""
+  opts.separator "Web Options:"
+
+  opts.on("-p", "--port PORT", Integer, "Web UI port (default: #{options[:port]})") do |p|
+    options[:port] = p
+  end
+
+  opts.on("-H", "--host HOST", "Web UI host (default: #{options[:host]})") do |h|
+    options[:host] = h
+  end
+
+  opts.separator ""
+  opts.separator "SDR Options (dump1090-compatible):"
+
+  opts.on("--device-index INDEX", Integer, "Select RTL-SDR device (default: 0)") do |idx|
+    options[:device_index] = idx
+  end
+
+  opts.on("--gain DB", Float, "Set gain in dB (default: max)") do |g|
+    options[:gain] = g
+  end
+
+  opts.on("--freq HZ", Integer, "Set frequency in Hz (default: 1090000000)") do |f|
+    options[:frequency] = f
+  end
+
+  opts.separator ""
+  opts.separator "Position Options:"
+
+  opts.on("--lat LATITUDE", Float, "Receiver latitude for surface position decoding") do |lat|
+    options[:receiver_lat] = lat
+  end
+
+  opts.on("--lon LONGITUDE", Float, "Receiver longitude for surface position decoding") do |lon|
+    options[:receiver_lon] = lon
+  end
+
+  opts.on("--max-range NM", Integer, "Max range for position decoding in nm (default: 300)") do |r|
+    options[:max_range_nm] = r
+  end
+
+  opts.separator ""
+  opts.separator "Decoding Options:"
+
+  opts.on("--fix", "Enable single-bit error correction using CRC (default)") do
+    options[:fix_errors] = true
+  end
+
+  opts.on("--no-fix", "Disable single-bit error correction") do
+    options[:fix_errors] = false
+  end
+
+  opts.on("--no-crc-check", "Disable CRC check (discouraged)") do
+    options[:crc_check] = false
+  end
+
+  opts.on("--snip LEVEL", Float, "Strip IQ samples below level") do |level|
+    options[:snip_level] = level
+  end
+
+  opts.on("--show-only ICAO", "Show only messages from given ICAO address") do |icao|
+    options[:show_only] = icao.upcase
+  end
+
+  opts.separator ""
+  opts.separator "Debug Options:"
+
+  opts.on("-v", "--verbose", "Enable verbose logging") do
+    options[:verbose] = true
+  end
+
+  opts.on("-d", "--debug", "Debug mode (log to file)") do
+    options[:debug] = true
+  end
+
+  opts.on("-r", "--dump-raw FILE", "Dump raw I/Q samples to FILE") do |f|
+    options[:dump_raw] = f
+  end
+
+  opts.separator ""
+
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    exit
+  end
+
+  opts.on("--version", "Show version") do
+    puts "ADS-B Flight Tracker v0.1.0 (Rails)"
+    exit
+  end
+end
+
+parser.parse!(ARGV)
+
+# Change to Rails root
+Dir.chdir(File.expand_path("..", __dir__))
+
+# Set SDR options via environment variables for Rails
+ENV["ADSB_DEVICE_INDEX"] = options[:device_index].to_s
+ENV["ADSB_GAIN"] = options[:gain].to_s
+ENV["ADSB_FREQUENCY"] = options[:frequency].to_s
+ENV["ADSB_LAT"] = options[:receiver_lat].to_s if options[:receiver_lat]
+ENV["ADSB_LON"] = options[:receiver_lon].to_s if options[:receiver_lon]
+ENV["ADSB_MAX_RANGE"] = options[:max_range_nm].to_s
+ENV["ADSB_NO_FIX"] = options[:fix_errors] ? "0" : "1"
+ENV["ADSB_NO_CRC_CHECK"] = options[:crc_check] ? "0" : "1"
+ENV["ADSB_SHOW_ONLY"] = options[:show_only] if options[:show_only]
+ENV["ADSB_SNIP"] = options[:snip_level].to_s if options[:snip_level]
+ENV["ADSB_DUMP_RAW"] = options[:dump_raw] if options[:dump_raw]
+ENV["ADSB_LOG_LEVEL"] = options[:verbose] ? "DEBUG" : "INFO"
+
+if options[:mode] == :tui
+  # === TUI Mode ===
+  # Load Rails environment for TUI
+  require_relative "../config/environment"
+
+  if options[:debug]
+    log_file = File.open("/tmp/adsb-tui.log", "a")
+    ADSB.logger = Logger.new(log_file)
+    ADSB.logger.level = Logger::DEBUG
+  elsif options[:verbose]
+    ADSB.log_level = Logger::DEBUG
+  else
+    ADSB.log_level = Logger::ERROR
+  end
+
+  config = SDRConfig.new(
+    device_index: options[:device_index],
+    gain: options[:gain],
+    frequency: options[:frequency],
+    receiver_lat: options[:receiver_lat],
+    receiver_lon: options[:receiver_lon],
+    max_range_nm: options[:max_range_nm],
+    fix_errors: options[:fix_errors],
+    crc_check: options[:crc_check],
+    show_only: options[:show_only],
+    snip_level: options[:snip_level],
+    dump_raw: options[:dump_raw]
+  )
+
+  require Rails.root.join("lib", "adsb", "tui", "application")
+
+  begin
+    app = ADSB::TUI::Application.new(verbose: options[:verbose], config: config)
+    app.run
+  rescue StandardError => e
+    Curses.close_screen rescue nil
+    puts "Error: #{e.message}"
+    puts e.backtrace.first(5).join("\n") if options[:verbose] || options[:debug]
+    exit 1
+  end
+
+else
+  # === Web Mode ===
+  begin
+    require "rtlsdr"
+    device_count = RTLSDR.device_count
+    if device_count.zero?
+      warn "Warning: No RTL-SDR devices found."
+    else
+      puts "Found #{device_count} RTL-SDR device(s)"
+      device_count.times { |i| puts "  #{i}: #{RTLSDR.device_name(i)}" }
+    end
+  rescue LoadError
+    warn "Error: rtlsdr gem not found. Run: bundle install"
+    exit 1
+  end
+
+  puts ""
+  puts "Starting ADS-B Flight Tracker (Rails)..."
+  puts "Server: http://#{options[:host] == '0.0.0.0' ? 'localhost' : options[:host]}:#{options[:port]}"
+  puts ""
+
+  exec(
+    "bundle", "exec", "rails", "server",
+    "-b", options[:host],
+    "-p", options[:port].to_s,
+    "-e", "development"
+  )
+end

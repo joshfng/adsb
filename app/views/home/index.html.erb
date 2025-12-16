@@ -1,0 +1,277 @@
+<% content_for(:title) { "ADS-B Flight Tracker" } %>
+<% content_for(:head) do %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css">
+<% end %>
+  <div id="app">
+    <div id="sidebar">
+      <div class="header">
+        <h1>ADS-B Tracker</h1>
+        <div class="status-row">
+          <div id="status" class="status disconnected">Disconnected</div>
+          <button type="button" id="feedStatus" class="feed-status" title="Feed status - click for details" onclick="tracker.showFeedStatus()" aria-label="View feed status">
+            <span class="feed-dot" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="collapsible-section">
+        <button type="button" class="collapsible-header" onclick="toggleSection(this)" aria-expanded="true" aria-controls="receiver-content">
+          <span>Receiver</span>
+          <span class="collapse-icon" aria-hidden="true">▼</span>
+        </button>
+        <div id="receiver-content" class="collapsible-content stats-content">
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-value" id="aircraftCount">0</span>
+              <span class="stat-label">Aircraft</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="messageCount">0</span>
+              <span class="stat-label">Messages</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="preambleCount">0</span>
+              <span class="stat-label">Preambles</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="crcFailCount">0</span>
+              <span class="stat-label">CRC Fail</span>
+            </div>
+          </div>
+          <div class="device-info-row">
+            <span id="statFrequency">--</span> · <span id="statSampleRate">--</span> · <span id="statGain">--</span> · <span id="statUptime">--</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapsible-section collapsed">
+        <button type="button" class="collapsible-header" onclick="toggleSection(this)" aria-expanded="false" aria-controls="history-content">
+          <span>History Stats</span>
+          <span class="collapse-icon" aria-hidden="true">▼</span>
+        </button>
+        <div id="history-content" class="collapsible-content">
+          <div class="stat-row">
+            <span class="stat-detail-label">Aircraft Today:</span>
+            <span class="stat-detail-value" id="histAircraftToday">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-detail-label">Total Aircraft:</span>
+            <span class="stat-detail-value" id="histTotalAircraft">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-detail-label">Sightings Today:</span>
+            <span class="stat-detail-value" id="histSightingsToday">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-detail-label">Total Sightings:</span>
+            <span class="stat-detail-value" id="histTotalSightings">--</span>
+          </div>
+          <div class="history-section">
+            <div class="stat-detail-label">Most Seen Aircraft:</div>
+            <div id="histMostSeen" class="most-seen-list"></div>
+          </div>
+          <div class="history-section">
+            <div class="stat-detail-label">Busiest Hours:</div>
+            <div id="histBusiestHours" class="busiest-hours"></div>
+          </div>
+          <button class="heatmap-toggle" onclick="tracker.toggleHeatmap()">
+            Toggle Coverage Heatmap
+          </button>
+        </div>
+      </div>
+
+      <div class="collapsible-section collapsed">
+        <button type="button" class="collapsible-header" onclick="toggleSection(this)" aria-expanded="false" aria-controls="filters-content">
+          <span>Filters</span>
+          <span class="collapse-icon" aria-hidden="true">▼</span>
+        </button>
+        <div id="filters-content" class="collapsible-content">
+          <div class="filter-row">
+            <label for="filterSearch" class="visually-hidden">Search callsign or ICAO</label>
+            <input type="text" id="filterSearch" placeholder="Search callsign/ICAO..."
+                   oninput="tracker.setSearchText(this.value)" aria-label="Search callsign or ICAO">
+          </div>
+          <div class="filter-row filter-checkboxes">
+            <label>
+              <input type="checkbox" id="filterPositionOnly"
+                     onchange="tracker.setPositionOnly(this.checked)">
+              Position only
+            </label>
+            <label>
+              <input type="checkbox" id="filterOnlyMilitary"
+                     onchange="tracker.setOnlyMilitary(this.checked)">
+              Military only
+            </label>
+            <label>
+              <input type="checkbox" id="filterOnlyPolice"
+                     onchange="tracker.setOnlyPolice(this.checked)">
+              Police only
+            </label>
+          </div>
+          <div class="filter-row type-filter">
+            <label for="filterType" class="filter-label">Type:</label>
+            <select id="filterType" onchange="tracker.setAircraftType(this.value)">
+              <option value="all">All Types</option>
+              <option value="jet">Jets</option>
+              <option value="prop">Props</option>
+              <option value="helicopter">Helicopters</option>
+            </select>
+          </div>
+          <div class="filter-row altitude-filter">
+            <span class="filter-label" id="altitude-label">Altitude:</span>
+            <input type="number" id="filterMinAlt" placeholder="Min" value="0"
+                   oninput="tracker.setMinAltitude(this.value)" aria-label="Minimum altitude in feet">
+            <span aria-hidden="true">-</span>
+            <input type="number" id="filterMaxAlt" placeholder="Max" value="50000"
+                   oninput="tracker.setMaxAltitude(this.value)" aria-label="Maximum altitude in feet">
+            <span>ft</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="aircraft-list">
+        <div class="aircraft-list-header">
+          <h2 id="aircraft-list-heading">Aircraft</h2>
+          <label for="sortSelect" class="visually-hidden">Sort aircraft by</label>
+          <select id="sortSelect" onchange="tracker.setSortBy(this.value)" aria-label="Sort aircraft by">
+            <option value="callsign">Name</option>
+            <option value="altitude">Altitude</option>
+            <option value="distance">Distance</option>
+            <option value="signal">Signal</option>
+          </select>
+        </div>
+        <div id="aircraftList"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="settings-btn" onclick="tracker.showSettings()" title="Settings">
+          ⚙️ Settings
+        </button>
+        <button class="coverage-btn" onclick="tracker.showCoverage()" title="Coverage Analysis">
+          📊 Coverage
+        </button>
+        <button class="export-btn" onclick="tracker.exportCurrentAircraft()" title="Export CSV">
+          📥 Export
+        </button>
+      </div>
+    </div>
+
+    <div id="map">
+      <div class="map-legend">
+        <div class="legend-item"><span class="legend-color" style="background:#00ff00"></span>&lt;10k</div>
+        <div class="legend-item"><span class="legend-color" style="background:#88ff00"></span>10-20k</div>
+        <div class="legend-item"><span class="legend-color" style="background:#ffff00"></span>20-30k</div>
+        <div class="legend-item"><span class="legend-color" style="background:#ff8800"></span>30-40k</div>
+        <div class="legend-item"><span class="legend-color" style="background:#ff0000"></span>&gt;40k</div>
+      </div>
+    </div>
+
+    <div id="infoPanel" class="info-panel hidden">
+      <button type="button" class="close-btn" onclick="closeInfoPanel()" aria-label="Close panel"><span aria-hidden="true">&times;</span></button>
+      <div class="info-header">
+        <h3 id="infoCallsign">--</h3>
+        <button id="trackBtn" class="track-btn" onclick="tracker.trackAircraft(tracker.selectedAircraft)">📍 Track</button>
+      </div>
+      <div id="infoType" class="info-type hidden">Law Enforcement</div>
+      <div id="infoAircraftType" class="info-aircraft-type"></div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">ICAO</span>
+          <span class="info-value" id="infoIcao">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Registration</span>
+          <span class="info-value" id="infoRegistration">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Altitude</span>
+          <span class="info-value" id="infoAltitude">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Speed</span>
+          <span class="info-value" id="infoSpeed">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Heading</span>
+          <span class="info-value" id="infoHeading">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Vertical Rate</span>
+          <span class="info-value" id="infoVerticalRate">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Position</span>
+          <span class="info-value" id="infoPosition">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Distance</span>
+          <span class="info-value" id="infoDistance">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Squawk</span>
+          <span class="info-value" id="infoSquawk">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Signal</span>
+          <span class="info-value" id="infoSignal">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Messages</span>
+          <span class="info-value" id="infoMessages">--</span>
+        </div>
+      </div>
+      <div id="ehsSection" class="ehs-section hidden">
+        <div class="info-section-title">Enhanced Surveillance</div>
+        <div class="info-grid">
+          <div class="info-item" id="ehsSelAlt">
+            <span class="info-label">Selected Alt</span>
+            <span class="info-value" id="infoSelAlt">--</span>
+          </div>
+          <div class="info-item" id="ehsRoll">
+            <span class="info-label">Roll Angle</span>
+            <span class="info-value" id="infoRoll">--</span>
+          </div>
+          <div class="info-item" id="ehsMagHdg">
+            <span class="info-label">Mag Heading</span>
+            <span class="info-value" id="infoMagHdg">--</span>
+          </div>
+          <div class="info-item" id="ehsIAS">
+            <span class="info-label">IAS</span>
+            <span class="info-value" id="infoIAS">--</span>
+          </div>
+          <div class="info-item" id="ehsMach">
+            <span class="info-label">Mach</span>
+            <span class="info-value" id="infoMach">--</span>
+          </div>
+          <div class="info-item" id="ehsBaroRate">
+            <span class="info-label">Baro Rate</span>
+            <span class="info-value" id="infoBaroRate">--</span>
+          </div>
+        </div>
+      </div>
+      <div id="infoOwner" class="info-owner"></div>
+      <div id="infoRouteSection" class="info-route-section hidden">
+        <div class="info-section-title">Flight Route</div>
+        <div class="info-route" id="infoRoute">--</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- ActionCable for WebSocket -->
+  <script src="https://cdn.jsdelivr.net/npm/@rails/actioncable@7.1.3/app/assets/javascripts/actioncable.esm.js" type="module"></script>
+  <script>
+    // Load ActionCable as a global for compatibility
+    import("https://cdn.jsdelivr.net/npm/@rails/actioncable@7.1.3/app/assets/javascripts/actioncable.esm.js").then(module => {
+      window.ActionCable = module;
+    });
+  </script>
+  <script>
+    function toggleSection(header) {
+      const section = header.parentElement;
+      const isCollapsed = section.classList.toggle('collapsed');
+      header.setAttribute('aria-expanded', !isCollapsed);
+    }
+  </script>
+  <script src="/js/app.js"></script>
