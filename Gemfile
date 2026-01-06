@@ -21,7 +21,7 @@ gem "kamal", require: false
 
 gem "thruster", require: false
 
-gem "rtlsdr"          # SDR hardware interface
+gem "rtlsdr", path: "../../ruby-rtlsdr" # SDR hardware interface
 gem "concurrent-ruby" # Thread-safe operations
 gem "ncursesw"        # TUI interface
 gem "rubyzip"         # FAA data download

@@ -10,7 +10,8 @@ class SDRConfig
   attr_accessor :device_index, :gain, :frequency,
                 :receiver_lat, :receiver_lon, :max_range_nm,
                 :fix_errors, :crc_check, :show_only,
-                :snip_level, :dump_raw
+                :snip_level, :dump_raw,
+                :source_type, :rtl_tcp_host, :rtl_tcp_port
 
   def initialize(options = {})
     @device_index = options.fetch(:device_index, 0)
@@ -24,6 +25,15 @@ class SDRConfig
     @show_only = options.fetch(:show_only, nil)  # ICAO hex to filter
     @snip_level = options.fetch(:snip_level, nil)
     @dump_raw = options.fetch(:dump_raw, nil)
+    # rtl_tcp network source options
+    @source_type = options.fetch(:source_type, :rtl_sdr)
+    @rtl_tcp_host = options.fetch(:rtl_tcp_host, "localhost")
+    @rtl_tcp_port = options.fetch(:rtl_tcp_port, 1234)
+  end
+
+  # Whether to use rtl_tcp network source
+  def tcp?
+    @source_type == :rtl_tcp
   end
 
   # Convert gain setting to tenths of dB for rtlsdr gem
@@ -54,7 +64,10 @@ class SDRConfig
       crc_check: @crc_check,
       show_only: @show_only,
       snip_level: @snip_level,
-      dump_raw: @dump_raw
+      dump_raw: @dump_raw,
+      source_type: @source_type,
+      rtl_tcp_host: @rtl_tcp_host,
+      rtl_tcp_port: @rtl_tcp_port
     }
   end
 
@@ -71,8 +84,17 @@ class SDRConfig
       crc_check: ENV["ADSB_NO_CRC_CHECK"] != "1",
       show_only: ENV["ADSB_SHOW_ONLY"]&.upcase,
       snip_level: ENV["ADSB_SNIP"]&.to_f,
-      dump_raw: ENV["ADSB_DUMP_RAW"]
+      dump_raw: ENV["ADSB_DUMP_RAW"],
+      source_type: parse_source_type(ENV["ADSB_SOURCE"]),
+      rtl_tcp_host: ENV.fetch("ADSB_RTL_TCP_HOST", "localhost"),
+      rtl_tcp_port: ENV.fetch("ADSB_RTL_TCP_PORT", "1234").to_i
     )
+  end
+
+  # Parse source type from string
+  def self.parse_source_type(value)
+    return :rtl_sdr if value.nil? || value.empty?
+    value.downcase.to_sym
   end
 
   # Parse gain value from string

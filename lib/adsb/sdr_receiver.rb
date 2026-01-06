@@ -116,6 +116,25 @@ class SDRReceiver
   private
 
   def open_device
+    if @config.tcp?
+      open_tcp_device
+    else
+      open_local_device
+    end
+  end
+
+  def open_tcp_device
+    host = @config.rtl_tcp_host
+    port = @config.rtl_tcp_port
+
+    ADSB.logger.info "Connecting to rtl_tcp server at #{host}:#{port}..."
+    @device = RTLSDR.connect(host, port)
+    ADSB.logger.info "Connected to #{@device.name} (tuner: #{@device.tuner_name})"
+  rescue RTLSDR::ConnectionError => e
+    raise "rtl_tcp connection failed: #{e.message}"
+  end
+
+  def open_local_device
     device_count = RTLSDR.device_count
     raise "No RTL-SDR devices found" if device_count.zero?
 
