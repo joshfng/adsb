@@ -260,13 +260,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- ActionCable for WebSocket -->
-  <script src="https://cdn.jsdelivr.net/npm/@rails/actioncable@7.1.3/app/assets/javascripts/actioncable.esm.js" type="module"></script>
-  <script>
-    // Load ActionCable as a global for compatibility
-    import("https://cdn.jsdelivr.net/npm/@rails/actioncable@7.1.3/app/assets/javascripts/actioncable.esm.js").then(module => {
-      window.ActionCable = module;
-    });
-  </script>
   <script>
     function toggleSection(header) {
       const section = header.parentElement;
@@ -275,3 +268,12 @@
     }
   </script>
   <script src="/js/app.js"></script>
+  <script type="module">
+    // Load ActionCable and reinitialize WebSocket after tracker is ready
+    import * as ActionCable from "https://cdn.jsdelivr.net/npm/@rails/actioncable@7.1.3/app/assets/javascripts/actioncable.esm.js";
+    window.ActionCable = ActionCable;
+    // Reinitialize WebSocket now that ActionCable is available
+    if (window.tracker) {
+      window.tracker.initWebSocket();
+    }
+  </script>

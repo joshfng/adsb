@@ -15,6 +15,7 @@ class ADSBTracker {
     this.trails = {};
     this.aircraft = {};
     this.selectedAircraft = null;
+    this.previousMapView = null; // Store view before zooming to aircraft
     this.messageCount = 0;
     this.ws = null;
     this.statsInterval = null;
@@ -299,6 +300,13 @@ class ADSBTracker {
       this.currentLayer = e.name;
     });
 
+    // Clicking on map (not on a marker) deselects current aircraft
+    this.map.on('click', () => {
+      if (this.selectedAircraft) {
+        this.clearSelection();
+      }
+    });
+
     // Set receiver location to Canton-Akron Airport (CAK)
     this.receiverLocation = { lat: 40.9161, lon: -81.4422 };
     this.addReceiverMarker();
@@ -549,6 +557,11 @@ class ADSBTracker {
   }
 
   clearSelection() {
+    // Restore previous map view if available
+    if (this.previousMapView) {
+      this.map.setView(this.previousMapView.center, this.previousMapView.zoom);
+      this.previousMapView = null;
+    }
     this.selectedAircraft = null;
     document.getElementById('infoPanel').classList.add('hidden');
     this.updateAircraftListUI();
@@ -1073,6 +1086,11 @@ class ADSBTracker {
       document.getElementById('infoPanel').classList.remove('hidden');
 
       if (aircraft.latitude && aircraft.longitude) {
+        // Save current view before zooming to aircraft
+        this.previousMapView = {
+          center: this.map.getCenter(),
+          zoom: this.map.getZoom()
+        };
         this.map.setView([aircraft.latitude, aircraft.longitude], 10);
       }
 
@@ -2413,6 +2431,14 @@ class ADSBTracker {
 function closeInfoPanel() {
   document.getElementById('infoPanel').classList.add('hidden');
   if (window.tracker) {
+    // Restore previous map view if available
+    if (window.tracker.previousMapView) {
+      window.tracker.map.setView(
+        window.tracker.previousMapView.center,
+        window.tracker.previousMapView.zoom
+      );
+      window.tracker.previousMapView = null;
+    }
     window.tracker.selectedAircraft = null;
     window.tracker.updateAircraftListUI();
   }

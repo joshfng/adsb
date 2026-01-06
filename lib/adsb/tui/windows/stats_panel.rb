@@ -71,10 +71,10 @@ module ADSB
           draw_text(row, start_col, "-- History --", Color::Scheme::DIM)
           row += 1
 
-          row = draw_stat(row, start_col, c_width, "Aircraft Today", @history_stats[:aircraft_today])
-          row = draw_stat(row, start_col, c_width, "Total Aircraft", @history_stats[:total_aircraft_seen])
-          row = draw_stat(row, start_col, c_width, "Sightings Today", format_number(@history_stats[:sightings_today]))
-          draw_stat(row, start_col, c_width, "Total Sightings", format_number(@history_stats[:sightings_total]))
+          row = draw_stat(row, start_col, c_width, "Planes Today", @history_stats[:aircraft_today])
+          row = draw_stat(row, start_col, c_width, "Planes Total", @history_stats[:total_aircraft_seen])
+          row = draw_stat(row, start_col, c_width, "Sights Today", format_number(@history_stats[:sightings_today]))
+          draw_stat(row, start_col, c_width, "Sights Total", format_number(@history_stats[:sightings_total]))
         end
 
         private
@@ -82,7 +82,7 @@ module ADSB
         def draw_stat(row, col, width, label, value)
           return row if value.nil?
 
-          label_width = 14
+          label_width = 17
           value_str = value.to_s[0, width - label_width - 1]
 
           draw_text(row, col, "#{label}:", Color::Scheme::DIM)
