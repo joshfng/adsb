@@ -17,6 +17,10 @@
 #   --max-range <nm>      Max decode range
 #   --fix/--no-fix        CRC error correction
 #   --show-only <icao>    Filter to single aircraft
+#
+# rtl_tcp network options:
+#   --rtl-tcp [host]      Use rtl_tcp network source
+#   --rtl-tcp-port <n>    rtl_tcp port (default: 1234)
 
 require "optparse"
 
@@ -38,7 +42,11 @@ options = {
   crc_check: true,
   show_only: nil,
   snip_level: nil,
-  dump_raw: nil
+  dump_raw: nil,
+  # rtl_tcp network options
+  source_type: :rtl_sdr,
+  rtl_tcp_host: "localhost",
+  rtl_tcp_port: 1234
 }
 
 parser = OptionParser.new do |opts|
@@ -85,6 +93,18 @@ parser = OptionParser.new do |opts|
 
   opts.on("--freq HZ", Integer, "Set frequency in Hz (default: 1090000000)") do |f|
     options[:frequency] = f
+  end
+
+  opts.separator ""
+  opts.separator "Network Options (rtl_tcp):"
+
+  opts.on("--rtl-tcp [HOST]", "Use rtl_tcp network source (default host: localhost)") do |host|
+    options[:source_type] = :rtl_tcp
+    options[:rtl_tcp_host] = host if host
+  end
+
+  opts.on("--rtl-tcp-port PORT", Integer, "rtl_tcp port (default: 1234)") do |port|
+    options[:rtl_tcp_port] = port
   end
 
   opts.separator ""
@@ -171,6 +191,9 @@ ENV["ADSB_SHOW_ONLY"] = options[:show_only] if options[:show_only]
 ENV["ADSB_SNIP"] = options[:snip_level].to_s if options[:snip_level]
 ENV["ADSB_DUMP_RAW"] = options[:dump_raw] if options[:dump_raw]
 ENV["ADSB_LOG_LEVEL"] = options[:verbose] ? "DEBUG" : "INFO"
+ENV["ADSB_SOURCE"] = options[:source_type].to_s
+ENV["ADSB_RTL_TCP_HOST"] = options[:rtl_tcp_host]
+ENV["ADSB_RTL_TCP_PORT"] = options[:rtl_tcp_port].to_s
 
 if options[:mode] == :tui
   # === TUI Mode ===
@@ -198,7 +221,10 @@ if options[:mode] == :tui
     crc_check: options[:crc_check],
     show_only: options[:show_only],
     snip_level: options[:snip_level],
-    dump_raw: options[:dump_raw]
+    dump_raw: options[:dump_raw],
+    source_type: options[:source_type],
+    rtl_tcp_host: options[:rtl_tcp_host],
+    rtl_tcp_port: options[:rtl_tcp_port]
   )
 
   require Rails.root.join("lib", "adsb", "tui", "application")
