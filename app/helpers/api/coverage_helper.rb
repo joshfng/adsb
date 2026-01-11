@@ -1,2 +1,0 @@
-module Api::CoverageHelper
-end

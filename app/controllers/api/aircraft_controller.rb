@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class Api::AircraftController < ApplicationController
   def index
     render json: { aircraft: AdsbService.receiver&.aircraft_list || [] }
   end
 
   def show
-    icao = params[:icao].upcase
+    icao = normalize_icao
 
     # Get live data from receiver
     live_data = AdsbService.receiver&.aircraft_list&.find { |a| a[:icao] == icao }

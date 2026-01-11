@@ -1,35 +1,21 @@
 # frozen_string_literal: true
 
 class Api::HistoryController < ApplicationController
+  before_action :require_history
   before_action :validate_hours, only: [ :heatmap ]
   before_action :validate_limit, only: [ :heatmap, :aircraft ]
   before_action :validate_icao, only: [ :aircraft ]
 
   def stats
-    history = AdsbService.receiver&.history
-    unless history
-      return render json: { error: "History service not available" }, status: :service_unavailable
-    end
-
     render json: history.get_stats
   end
 
   def heatmap
-    history = AdsbService.receiver&.history
-    unless history
-      return render json: { error: "History service not available" }, status: :service_unavailable
-    end
-
     positions = history.get_positions(hours: @hours, limit: @limit)
     render json: { positions: positions }
   end
 
   def aircraft
-    history = AdsbService.receiver&.history
-    unless history
-      return render json: { error: "History service not available" }, status: :service_unavailable
-    end
-
     history_data = history.aircraft_history(@icao, limit: @limit)
     render json: { history: history_data }
   end
@@ -53,10 +39,14 @@ class Api::HistoryController < ApplicationController
   end
 
   def validate_icao
-    icao = params[:icao].to_s.upcase.strip
+    icao = normalize_icao
     unless icao.match?(/\A[0-9A-F]{6}\z/)
       return render json: { error: "Invalid ICAO format" }, status: :bad_request
     end
     @icao = icao
+  end
+
+  def history
+    AdsbService.receiver.history
   end
 end

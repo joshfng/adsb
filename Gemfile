@@ -21,7 +21,7 @@ gem "kamal", require: false
 
 gem "thruster", require: false
 
-gem "rtlsdr", path: "../../ruby-rtlsdr" # SDR hardware interface
+gem "rtlsdr"
 gem "concurrent-ruby" # Thread-safe operations
 gem "ncursesw"        # TUI interface
 gem "rubyzip"         # FAA data download
@@ -43,4 +43,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "rspec_junit_formatter"
+  gem "simplecov", require: false
 end

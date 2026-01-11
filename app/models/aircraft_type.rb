@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AircraftType < ApplicationRecord
   self.primary_key = :code
 

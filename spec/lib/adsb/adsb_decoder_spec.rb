@@ -626,3 +626,171 @@ end
 def int_to_bits(n, num_bits)
   num_bits.times.map { |i| (n >> (num_bits - 1 - i)) & 1 }
 end
+
+RSpec.describe "ADSBDecoder::Message additional coverage" do
+  describe "surface position messages" do
+    it "identifies surface position messages (TC 5-8)" do
+      # Create a DF17 message with TC in surface position range
+      # DF17 = 10001, TC=5 = 00101
+      df_bits = [ 1, 0, 0, 0, 1 ]
+      ca_bits = [ 0, 0, 0 ]
+      icao_bits = Array.new(24, 0)
+      tc_bits = [ 0, 0, 1, 0, 1 ]  # TC=5
+      me_rest = Array.new(51, 0)
+      crc_bits = Array.new(24, 0)
+
+      bits = df_bits + ca_bits + icao_bits + tc_bits + me_rest + crc_bits
+      msg = ADSBDecoder.decode(bits, crc_check: false)
+
+      expect(msg.surface_position?).to be(true)
+    end
+  end
+
+  describe "altitude decoding" do
+    it "returns nil for non-position messages" do
+      ident_hex = '8D4840D6202CC371C32CE0576098'
+      msg = ADSBDecoder.decode(hex_to_bits(ident_hex))
+      expect(msg.altitude).to be_nil
+    end
+  end
+
+  describe "velocity decoding" do
+    it "returns nil for non-velocity messages" do
+      ident_hex = '8D4840D6202CC371C32CE0576098'
+      msg = ADSBDecoder.decode(hex_to_bits(ident_hex))
+      expect(msg.velocity).to be_nil
+    end
+  end
+
+  describe "CPR position" do
+    it "returns nil for non-position messages" do
+      ident_hex = '8D4840D6202CC371C32CE0576098'
+      msg = ADSBDecoder.decode(hex_to_bits(ident_hex))
+      expect(msg.cpr_position).to be_nil
+    end
+  end
+
+  describe "callsign decoding" do
+    it "returns nil for non-identification messages" do
+      position_hex = '8D40621D58C382D690C8AC2863A7'
+      msg = ADSBDecoder.decode(hex_to_bits(position_hex))
+      expect(msg.callsign).to be_nil
+    end
+  end
+
+  describe "message validity" do
+    it "rejects invalid DF in long message" do
+      # Create invalid DF (not 17, 20, or 21)
+      df_bits = [ 0, 0, 0, 0, 0 ]  # DF=0
+      rest = Array.new(107, 0)
+      bits = df_bits + rest
+
+      msg = ADSBDecoder.decode(bits, crc_check: false)
+      expect(msg.valid?).to be(false)
+    end
+
+    it "validates short message DFs" do
+      # DF4 = 00100 (valid short)
+      df_bits = [ 0, 0, 1, 0, 0 ]
+      rest = Array.new(51, 0)
+      bits = df_bits + rest
+
+      msg = ADSBDecoder.decode(bits, crc_check: false)
+      msg.instance_variable_set(:@crc_ok, true)
+      msg.instance_variable_set(:@df, 4)
+      expect(msg.valid?).to be(true)
+    end
+  end
+
+  describe "adsb? method" do
+    it "returns true for DF17" do
+      valid_hex = '8D40621D58C382D690C8AC2863A7'
+      msg = ADSBDecoder.decode(hex_to_bits(valid_hex))
+      expect(msg.adsb?).to be(true)
+    end
+
+    it "returns false for non-DF17" do
+      # DF5 message
+      bits = Array.new(56, 0)
+      bits[0..4] = [ 0, 0, 1, 0, 1 ]  # DF=5
+      msg = ADSBDecoder.decode(bits, crc_check: false)
+      msg.instance_variable_set(:@df, 5)
+      expect(msg.adsb?).to be(false)
+    end
+  end
+
+  describe "needs_icao_recovery?" do
+    it "returns true for DF4 short message" do
+      bits = Array.new(56, 0)
+      bits[0..4] = [ 0, 0, 1, 0, 0 ]  # DF=4
+      msg = ADSBDecoder.decode(bits, crc_check: false)
+      msg.instance_variable_set(:@df, 4)
+      expect(msg.needs_icao_recovery?).to be(true)
+    end
+
+    it "returns false for long messages" do
+      valid_hex = '8D40621D58C382D690C8AC2863A7'
+      msg = ADSBDecoder.decode(hex_to_bits(valid_hex))
+      expect(msg.needs_icao_recovery?).to be(false)
+    end
+  end
+
+  describe "BDS register detection" do
+    context "BDS 5,0" do
+      it "detects valid BDS 5,0 with track data" do
+        msg = ADSBDecoder::Message.new(Array.new(112, 0))
+        msg.instance_variable_set(:@df, 20)
+
+        # BDS 5,0: roll status = 0, track status = 1 at bit 11
+        # Make sure BDS 4,0 fails: bit 0 = 0 and bit 13 = 0
+        data = Array.new(56, 0)
+        data[11] = 1  # Track status
+
+        # Track angle value (bits 12-22) - reasonable value
+        track_bits = int_to_bits(100, 11)
+        11.times { |i| data[12 + i] = track_bits[i] }
+        msg.instance_variable_set(:@data, data)
+
+        ehs = msg.ehs_data
+        expect(ehs).not_to be_nil
+        expect(ehs[:bds]).to eq("5,0")
+      end
+    end
+  end
+
+  describe "airspeed velocity decoding (subtype 3/4)" do
+    it "decodes airspeed heading when available" do
+      # Create DF17 TC=19 with subtype 3 (airspeed)
+      df_bits = [ 1, 0, 0, 0, 1 ]  # DF=17
+      ca_bits = [ 0, 0, 0 ]
+      icao_bits = Array.new(24, 0)
+      tc_bits = [ 1, 0, 0, 1, 1 ]  # TC=19
+
+      # Subtype = 3 (bits 37-39)
+      subtype_bits = [ 0, 1, 1 ]  # subtype 3
+
+      # Heading status = 1 at bit 45
+      heading_status = [ 1 ]
+
+      # Heading value (10 bits 46-55) - 90 degrees = ~256 raw
+      heading_raw = int_to_bits(256, 10)
+
+      # Airspeed type (bit 56) and value (bits 57-66)
+      airspeed_type = [ 0 ]  # IAS
+      airspeed_value = int_to_bits(350, 10)  # 350 knots
+
+      # Vertical rate stuff
+      vr_rest = Array.new(21, 0)
+
+      me_data = tc_bits + subtype_bits + Array.new(5, 0) + heading_status + heading_raw + airspeed_type + airspeed_value + vr_rest
+      crc_bits = Array.new(24, 0)
+
+      bits = df_bits + ca_bits + icao_bits + me_data + crc_bits
+      msg = ADSBDecoder.decode(bits, crc_check: false)
+
+      vel = msg.velocity
+      expect(vel).not_to be_nil
+      expect(vel[:type]).to eq(:indicated_airspeed)
+    end
+  end
+end

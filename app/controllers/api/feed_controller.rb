@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::FeedController < ApplicationController
   def beast
     aircraft_list = AdsbService.receiver&.aircraft_list || []

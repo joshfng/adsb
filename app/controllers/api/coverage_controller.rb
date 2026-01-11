@@ -1,5 +1,9 @@
+# frozen_string_literal: true
+
 class Api::CoverageController < ApplicationController
   include ADSB::Constants
+
+  before_action :require_history
 
   def show
     lat = params[:lat]&.to_f
@@ -10,10 +14,6 @@ class Api::CoverageController < ApplicationController
       return render json: { error: "Receiver lat/lon required" }
     end
 
-    if AdsbService.receiver&.history
-      render json: AdsbService.receiver.history.coverage_analysis(receiver_lat: lat, receiver_lon: lon, hours: hours)
-    else
-      render json: { error: "History not available" }
-    end
+    render json: AdsbService.receiver.history.coverage_analysis(receiver_lat: lat, receiver_lon: lon, hours: hours)
   end
 end

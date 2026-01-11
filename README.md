@@ -80,26 +80,26 @@ SDR Options (dump1090-compatible):
 
 Environment variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ADSB_DEVICE_INDEX` | RTL-SDR device index | 0 |
-| `ADSB_GAIN` | Gain in dB (or empty for max) | max |
-| `ADSB_LAT` | Receiver latitude | - |
-| `ADSB_LON` | Receiver longitude | - |
-| `ADSB_MAX_RANGE` | Max range in nautical miles | 300 |
-| `ADSB_AUTO_START` | Auto-start receiver on boot | true |
+| Variable            | Description                   | Default |
+| ------------------- | ----------------------------- | ------- |
+| `ADSB_DEVICE_INDEX` | RTL-SDR device index          | 0       |
+| `ADSB_GAIN`         | Gain in dB (or empty for max) | max     |
+| `ADSB_LAT`          | Receiver latitude             | -       |
+| `ADSB_LON`          | Receiver longitude            | -       |
+| `ADSB_MAX_RANGE`    | Max range in nautical miles   | 300     |
+| `ADSB_AUTO_START`   | Auto-start receiver on boot   | true    |
 
 ## API Endpoints
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/aircraft` | List all tracked aircraft |
-| `GET /api/aircraft/:icao` | Single aircraft details |
-| `GET /api/stats` | Receiver statistics |
-| `GET /api/status` | System status |
-| `GET /api/history/stats` | Historical statistics |
-| `GET /api/feed/status` | Feed status |
-| `GET /api/coverage` | Coverage map data |
+| Endpoint                  | Description               |
+| ------------------------- | ------------------------- |
+| `GET /api/aircraft`       | List all tracked aircraft |
+| `GET /api/aircraft/:icao` | Single aircraft details   |
+| `GET /api/stats`          | Receiver statistics       |
+| `GET /api/status`         | System status             |
+| `GET /api/history/stats`  | Historical statistics     |
+| `GET /api/feed/status`    | Feed status               |
+| `GET /api/coverage`       | Coverage map data         |
 
 ## FAA Data
 
