@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
 
     env:
@@ -28,11 +28,8 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Set up database
-        run: bin/rails db:prepare
-
-      - name: Run tests
-        run: bundle exec rspec --format progress --format RspecJunitFormatter --out tmp/rspec_results.xml
+      - name: Run CI
+        run: bin/ci
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
@@ -40,23 +37,3 @@ jobs:
         with:
           name: rspec-results
           path: tmp/rspec_results.xml
-
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libncursesw5-dev librtlsdr-dev libusb-1.0-0-dev
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Run RuboCop
-        run: bundle exec rubocop --parallel
