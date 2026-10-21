@@ -175,7 +175,7 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.4)
-    ncursesw (1.4.13)
+    ncursesw (1.4.14)
     net-imap (0.6.7)
       date
       net-protocol
